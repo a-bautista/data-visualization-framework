@@ -1,0 +1,181 @@
+{% extends "web_app_navigator/header.html"%}
+
+{% block content %}
+
+<head>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:100,600,400">
+</head>
+<style>
+body{
+  transition: all 0.3s ease;
+  font-family: 'Raleway', sans-serif;
+}
+body{
+  background-color:#111111;
+}
+.text-holder{
+  color:#aaaaaa;
+  text-align:center;
+  padding-top:40px;
+}
+.button-holder{
+  padding-top:100px;
+}
+.ajax-button{
+  position:relative;
+  display:inline-block;
+  width:100px;
+  height:40px;
+  left:50%;
+  top:50%;
+  margin-left:-50px;
+  margin-top:-20px;
+  text-align:center;
+}
+.submit{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width:100px;
+  height:40px;
+  background-color:#111111;
+  border:2px solid #FFFFFF;
+  border-radius:10px;
+  color:#FFFFFF;
+  font-size:17px;
+  cursor:pointer !important;
+  outline:none;
+}
+
+.submit:hover{
+  background-color:#222222;
+}
+.loading{
+  font-size:0;
+  width:30px;
+  height:30px;
+  margin-top:5px;
+  border-radius:15px;
+  padding:0;
+  border:3px solid #FFFFFF;
+  border-bottom:3px solid rgba(255,255,255,0.0);
+  border-left:3px solid rgba(255,255,255,0.0);
+  background-color:transparent !important;
+  animation-name: rotateAnimation;
+  -webkit-animation-name: wk-rotateAnimation;
+  animation-duration: 1s;
+  -webkit-animation-duration: 1s;
+  animation-delay: 0.2s;
+  -webkit-animation-delay: 0.2s;
+  animation-iteration-count: infinite;
+  -webkit-animation-iteration-count: infinite;
+}
+
+@keyframes rotateAnimation {
+    0%   {transform: rotate(0deg);}
+    100% {transform: rotate(360deg);}
+}
+@-webkit-keyframes wk-rotateAnimation {
+    0%   {-webkit-transform: rotate(0deg);}
+    100% {-webkit-transform: rotate(360deg);}
+}
+
+.fa{
+  color:#ffffff;
+  font-size:18px !important;
+  position:absolute;
+  left:50%;
+  top:50%;
+  margin-left:-9px;
+  margin-top:-9px;
+  -webkit-transform:scaleX(0) !important;
+  transform:scaleX(0) !important;
+}
+
+.finish{
+  -webkit-transform:scaleX(1) !important;
+  transform:scaleX(1) !important;
+}
+.hide-loading{
+  opacity:0;
+  -webkit-transform: rotate(0deg) !important;
+  transform: rotate(0deg) !important;
+  -webkit-transform:scale(0) !important;
+  transform:scale(0) !important;
+}
+</style>
+
+<div class="row">
+    <h3 style="color:#fff">Select engineer, weeks and year to retrieve data.</h3>
+</div>
+<form id="search_dates" method="POST" action="/colombia_quantitative_qualitative_yearly/"> {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-4">
+            <div style="display:inline-block">
+                <h4 style="color:#fff">Select engineer</h4>
+                <select name="engineer">
+                    <option value={{form.engineer}}></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div style="display:inline-block">
+                <h4 style="color:#fff">Initial week (Inclusive)</h4>
+                <select name="week_comparison_one">
+                    <option value={{form.week_comparison_one}}></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div style="display:inline-block">
+                <h4 style="color:#fff">Ending week (Inclusive)</h4>
+                    <select name="week_comparison_two">
+                        <option value={{form.week_comparison_two}}></option>
+                    </select>
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div style="display:inline-block">
+                <h4 style="color:#fff">Current year</h4>
+                    <select name="year">
+                        <option value={{form.year}}></option>
+                    </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div style="display:inline-block"></div>
+            <br />
+            <button type="submit" class="submit" input="submit" id="submit">Submit</button>
+        </div>
+    </div>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".submit").click(function() {
+    $(".submit").addClass("loading");
+    setTimeout(function() {
+      $(".submit").addClass("hide-loading");
+      // For failed icon just replace ".done" with ".failed"
+      $(".done").addClass("finish");
+    }, 50000000);
+    setTimeout(function() {
+      $(".submit").removeClass("loading");
+      $(".submit").removeClass("hide-loading");
+      $(".done").removeClass("finish");
+      $(".failed").removeClass("finish");
+    }, 50000000);
+  })
+});
+</script>
+
+{% endblock content %}

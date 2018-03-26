@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Triage Navigator</title>
+	<meta charset="utf-8" />
+	{% load staticfiles %}
+	<link rel="stylesheet" href="{% static 'web_app_navigator/css/bootstrap.min.css' %}" type = "text/css"/>
+	<!--Data table link to display the tables-->
+	<link rel="stylesheet" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+	<meta name="viewport" content="width=device=width, initial-scale=1.0">
+	<!--Accordion effect-->
+	<style type="text/css">
+		html,
+		body {
+			height:100%
+		}
+		button.accordion {
+		background-color: #fff;
+		color: #337ab7;
+		cursor: pointer;
+		padding: 5px;
+		width: 100%;
+		border: none;
+		text-align: left;
+		outline: none;
+		font-size: 15px;
+		transition: 0.4s;
+		font-weight: bold;
+		}
+
+		button.accordion.active, button.accordion:hover {
+			background-color: #ddd;
+		}
+
+		div.panel {
+			padding: 0 18px;
+			display: none;
+			background-color: white;
+		}
+	</style>
+</head>
+
+<body class="body" background="static/web_app_navigator/img/wallpaper.jpg">
+	<nav class="navbar">
+		<div class="container-fluid">
+		<!-------------------------------------- Logo ---------------------------------------------------->
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">
+					<img src="{% static 'web_app_navigator/img/python_logo.jpg' %}" style='max-height:100px;' alt="pythonlogo" width="60" height="65">
+				</a>
+			</div>
+		<!---------------------------------- Main Menu items -------------------------------------------->
+		<div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/"><h4 style="color:#fff">Main Dashboard</h4></a></li>
+			</ul>
+			<!--add more options in the future
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/"><h4 style="color:#fff">Export</h4></a></li>
+			</ul>
+			-->
+		</div>
+		</div>
+	</nav>
+
+	<!------------------------------------- Side bar items ---------------------------------------------->
+	<div class="container-fluid" style="min-height:95%; ">
+		<div class="row">
+		  <div class="col-sm-2">
+		  <br><br>
+
+			<div class="well bs-sidebar" id="sidebar" style="background-color:#fff">
+				<button class="accordion">Finances</button>
+				<div class="panel"><!-------------- wrapper of the Finances  menu ------------->
+					<button class="accordion">Daily graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+
+							</ul>
+						</div>
+
+					<button class="accordion">Weekly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/ca_quantitative_qualitative/'>Quantitative vs Qualitative </a></li>
+								<li><a href='/ca_weekly_tickets/'>Weekly Tickets</a></li>
+								<li><a href='/ca_tickets_status/'>Tickets Status</a></li>
+								<li><a href='/ca_tickets_per_week/'>Tickets by Engineer per Week</a></li>
+								<li><a href='/ca_tickets_per_day_by_engineer/'>Tickets per day by Engineer</a></li>
+								<li><a href='/ca_tickets_per_country/'>Tickets per Country</a></li>
+								<li><a href='/ca_tickets_assigned_group/'>Tickets per Assigned group</a></li>
+								<li><a href='/ca_triage_category_tickets/'>Tickets per Triage Category</a></li>
+								<li><a href='/ca_triage_subcategory_tickets/'>Tickets per Triage Subcategory</a></li>
+								<li><a href='/ca_tickets_reason_for_creating/'>Reason for Creating Tickets</a></li>
+								<li><a href='/ca_tickets_problem_category/'>Tickets per Problem Category</a></li>
+								<li><a href='/ca_tickets_engineer_status/'>Tickets by Engineer per Status</a></li>
+								<li><a href='/ca_tickets_engineer_country/'>Tickets by Engineer per Country</a></li>
+								<li><a href='/ca_tickets_engineer_triage_category/'>Tickets by Engineer per Triage Category</a></li>
+								<li><a href='/ca_tickets_triage_category_per_day/'>Tickets in Triage Category per Day</a></li>
+								<li><a href='/ca_tickets_day_region/'>Tickets in Region per Day</a></li>
+								<li><a href='/ca_tickets_day_status/'>Tickets Status per Day</a></li>
+							</ul>
+						</div>
+
+					<button class="accordion">Monthly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/ca_tickets_per_country_monthly/'>Tickets per Country</a></li>
+								<li><a href='/ca_tickets_assigned_group_monthly/'>Tickets per Assigned Group</a></li>
+								<li><a href='/ca_triage_category_tickets_monthly/'>Tickets per Triage Category</a></li>
+								<li><a href='/ca_triage_subcategory_tickets_monthly/'>Tickets per Triage Subcategory</a></li>
+								<li><a href='/ca_tickets_problem_category_monthly/'>Tickets per Problem Category</a></li>
+								<li><a href='/ca_tickets_reason_for_creating_monthly/'>Reason for Creating Tickets</a></li>
+							</ul>
+						</div>
+
+					<button class="accordion">Yearly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/ca_tickets_per_country_yearly/'>Tickets per Country</a></li>
+								<li><a href='/ca_tickets_assigned_group_yearly/'>Tickets per Assigned Group</a></li>
+								<li><a href='/ca_triage_subcategory_tickets_yearly/'>Tickets per Triage Subcategory</a></li>
+								<li><a href='/ca_tickets_problem_category_yearly/'>Tickets per Problem Category</a></li>
+								<li><a href='/ca_triage_category_tickets_yearly/'>Tickets per Triage Category</a></li>
+								<li><a href='/ca_tickets_reason_for_creating_yearly/'>Reason for Creating Tickets</a></li>
+								<li><a href='/ca_bidimensional_analysis_yearly/'>Bidimensional Analysis</a></li>
+							</ul>
+						</div>
+				</div><!--end of the Finances wrapper menu-->
+
+				<button class="accordion">Security</button>
+					<div class="panel"><!-------------- wrapper of the Security menu ------------->
+					<button class="accordion">Daily graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/quantitative_qualitative_daily/'>Quantitative vs Qualitative</a></li>
+							</ul>
+						</div>
+
+					<button class="accordion">Weekly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/quantitative_qualitative_weekly/'>Quantitative vs Qualitative</a></li>
+								<li><a href='/tickets_counting_weekly/'>Weekly Tickets </a></li>
+								<li><a href='/tickets_status_weekly/'>Tickets Status </a></li>
+								<li><a href='/tickets_affected_devices_weekly/'>Tickets per Affected Devices</a></li>
+								<li><a href='/tickets_problem_category_weekly/'>Tickets Problem Category </a></li>
+								<li><a href='/tickets_reason_for_creating_weekly/'>Tickets Reason for Creating </a></li>
+							</ul>
+						</div>
+
+					<button class="accordion">Monthly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/tickets_affected_devices_monthly/'>Tickets per Affected Devices </a></li>
+								<li><a href='/tickets_problem_category_monthly/'>Tickets Problem Category </a></li>
+								<li><a href='/tickets_reason_for_creating_monthly/'>Tickets Reason for Creating </a></li>
+								<li><a href='/tickets_bidimensional_analysis_monthly/'>Bidimensional Analysis</a></li>
+							</ul>
+						</div>
+
+					<button class="accordion">Yearly graphs</button>
+						<div class="panel">
+							<ul class="nav nav-pills nav-stacked">
+								<li><a href='/tickets_quantitative_qualitative_yearly/'>Audit</a></li>
+								<li><a href='/tickets_affected_devices_yearly/'>Tickets per Affected Devices </a></li>
+								<li><a href='/tickets_problem_category_yearly/'>Tickets Problem Category </a></li>
+								<li><a href='/tickets_reason_for_creating_yearly/'>Tickets Reason for Creating </a></li>
+								<li><a href='/tickets_technology_yearly/'>Tickets by Technology </a></li>
+								<li><a href='/tickets_bidimensional_analysis_yearly/'>Bidimensional Analysis</a></li>
+							</ul>
+						</div>
+				</div> <!-- end of the Security wrapper -->
+			</div> <!-- end of well bs-sidebar  -->
+		  </div> <!-- end of col-sm-2 -->
+
+		  <div class="col-sm-10">
+			<div class='container-fluid'>
+			<br><br>
+			   {% block content %}
+			   {% endblock %}
+			</div>
+		  </div>
+		</div><!-- end of row -->
+	</div><!-- end of the container fluid -->
+</body>
+
+<footer>
+	<div class="container-fluid" style='margin-left:15px'>
+		<p align="center"; style="color:#fff">&copy; Development CDMX 2017</p>
+	</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+<!--------------------- Script that is used in the results templates ------------------------------>
+<script>
+		{% block jquery %}
+	    {% endblock %}
+</script>
+
+<script type="text/javascript">
+var acc = document.getElementsByClassName("accordion");
+var i;
+
+for (i = 0; i < acc.length; i++) {
+    acc[i].onclick = function(){
+        this.classList.toggle("active");
+        var panel = this.nextElementSibling;
+        if (panel.style.display === "block") {
+            panel.style.display = "none";
+        } else {
+            panel.style.display = "block";
+        }
+    }
+}
+</script>
+</html>

@@ -1,0 +1,171 @@
+{% extends "web_app_navigator/header.html"%}
+
+<script>
+    {% block jquery %}
+    data = {{my_data|safe}}
+
+    var year = data.year
+    var week = data.week
+    var market = data.market
+    var table_values = data.table_values
+	var graph_values = data.label_values
+	var labels = data.labels
+
+	document.getElementById("display_year").innerHTML   = year;
+	document.getElementById("display_week").innerHTML   = week;
+	document.getElementById("display_market").innerHTML = market;
+
+	setChart()
+
+	$('#results').DataTable({
+       data: table_values
+    });
+
+function setChart()
+{
+    var ctx_graph     = document.getElementById("graph")
+	var display_graph = new Chart(ctx_graph, {
+	    type:'pie',
+		data: {
+			labels: labels,
+			datasets :
+			    [{
+					data: graph_values,
+
+                backgroundColor: [
+                    'rgba(237, 98, 18, 0.9)',
+                    'rgba(54, 162, 235, 0.9)',
+                    'rgba(255, 206, 86, 0.9)',
+                    'rgba(75, 192, 192, 0.9)',
+                    'rgba(153, 102, 255, 0.9)',
+                    'rgba(45, 154, 35, 0.9)',
+                    'rgba(154, 39, 35, 0.9)',
+                    'rgba(242, 13, 13, 0.9)',
+                    'rgba(186, 165, 9, 0.9)',
+                    'rgba(201, 74, 28, 0.9)',
+                    'rgba(201, 28, 97, 0.9)',
+                    'rgba(28, 201, 51, 0.9)',
+                    'rgba(155, 135, 63, 0.9)',
+                    'rgba(193, 21, 9, 0.9)',
+                    'rgba(30, 15, 100, 0.9)',
+                    'rgba(219, 15, 154, 0.9)',
+                    ],
+
+                borderColor: '#000',
+                borderWidth: 2,
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#000'
+			}]
+		    },
+
+		    options : {
+		        responsive: true,
+		        tooltipTemplate: "<%= value %>",
+		        tooltipFillColor: "rgba(0,0,0,0)",
+		        tooltipFontColor: "#444",
+		        tooltipEvents: [],
+		        tooltipCaretSize: 0,
+
+                plugins: {
+                    datalabels: {
+                          display: true,
+                          align: 'center',
+                          anchor: 'center',
+                          color: '#fff'
+                         }
+                      },
+
+                title: {
+                    display: true,
+                    text: 'Tickets Problem Category',
+                    fontSize: 30,
+                    padding: 50,
+                    fontColor: '#fff'
+                    },
+
+                    legend: {
+                        position: 'right',
+                        display: true,
+
+                    labels: {
+                        fontColor: '#fff'
+                        }
+		            },
+
+		        layout: {
+		            padding: {
+		                left: 50,
+		                right: 0,
+		                bottom: 0,
+		                top: 0
+		            }
+		        },
+		        tooltips: {
+                    callbacks: {
+                    label: function(tooltipItem, data) {
+                        var allData = data.datasets[tooltipItem.datasetIndex].data;
+                        var tooltipLabel = data.labels[tooltipItem.index];
+                        var tooltipData = allData[tooltipItem.index];
+                        var total = 0;
+                        for (var i in allData) {
+                            total += allData[i];
+                        }
+                        var tooltipPercentage = Math.round((tooltipData / total) * 100);
+                        return tooltipLabel + ': ' + tooltipData + ' (' + tooltipPercentage + '%)';
+                        } //end of function
+                    } // end of callbacks
+                } // end of tooltips
+	        }// end of options
+    }); // end of display_graph variable
+}// end of function
+
+{% endblock %}
+
+</script>
+{% block content %}
+
+<div class = 'row' >
+    <h3 style="color:#fff">You are reviewing:</h3>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current year: <span id="display_year"></span></h4>
+    </div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current week: <span id="display_week"></span></h4>
+    </div>
+    <div style="display:inline-block"></div>
+        <div style="display:inline-block"></div>
+        <div style="display:inline-block">
+            <h4 style="color:#fff">Current market: <span id="display_market"></span></h4>
+        </div>
+</div>
+
+<div class = 'row' >
+    <div class="col-sm-10">
+        <div><canvas id="graph" width="700" height="400"></canvas></div>
+    </div>
+</div>
+
+
+<br />
+<div class="col-sm-10">
+        <table id="results" style="width:100%">
+            <thead>
+                <tr>
+                   <th bgcolor="#fff">Ticket ID</th>
+                   <th bgcolor="#fff">Engineer Name</th>
+                   <th bgcolor="#fff">Initial Detection</th>
+                   <th bgcolor="#fff">Action Date</th>
+                   <th bgcolor="#fff">Issue Status</th>
+                   <th bgcolor="#fff">Reason for Creating</th>
+                   <th bgcolor="#fff">Problem Category</th>
+                   <th bgcolor="#fff">Affected Devices</th>
+                </tr>
+            </thead>
+        <tbody>
+        </tbody>
+  </table>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,224 @@
+{% extends "web_app_navigator/header.html"%}
+
+<script>
+    {% block jquery %}
+	data = {{my_data|safe}}
+
+	var year  = data.year
+    var month = data.month
+    var day   = data.day
+    var market = data.market
+    var table_values = data.table_values
+    var data_quality = data.quality
+	var quantitative_values = data.quantitative
+	label_engineers = data.label_engineers
+
+	setChart()
+
+	document.getElementById("display_year").innerHTML  = year;
+	document.getElementById("display_month").innerHTML = month;
+	document.getElementById("display_day").innerHTML   = day;
+	document.getElementById("display_market").innerHTML = market;
+
+   $('#results').DataTable({
+        data: table_values
+    });
+
+
+function setChart()
+{
+    var ctx_quantitative_qualitative       = document.getElementById("quantitative_qualitative_tickets")
+
+	var tickets_per_day = new Chart(ctx_quantitative_qualitative, {
+
+	    type:'bar',
+		data: {
+			labels: label_engineers,
+			datasets :
+			    [{
+				    label: 'Quantitative',
+					data:  quantitative_values,
+
+                backgroundColor: [
+                    'rgba(237, 98, 18, 0.94)',
+                    'rgba(54, 162, 235, 0.9)',
+                    'rgba(255, 206, 86, 0.9)',
+                    'rgba(75, 192, 192, 0.9)',
+                    'rgba(153, 102, 255, 0.9)',
+                    'rgba(45, 154, 35, 0.9)',
+                    'rgba(154, 39, 35, 0.9)',
+                    'rgba(182, 53, 7, 0.9)',
+                    'rgba(179, 231, 8, 0.9)',
+                    'rgba(8, 8, 231, 0.9)',
+                    'rgba(231, 8, 157, 0.9)',
+                    'rgba(8, 231, 135, 0.9)',
+                    'rgba(0, 0, 0, 0.9)',
+                    'rgba(155, 35, 150, 0.9)',
+                    'rgba(186, 165, 9, 0.9)',
+                    'rgba(201, 74, 28, 0.9)',
+                    'rgba(201, 28, 97, 0.9)',
+                    'rgba(28, 201, 51, 0.9)',
+                    'rgba(155, 135, 63, 0.9)',
+                    'rgba(193, 21, 9, 0.9)',
+                    'rgba(123, 51, 98, 0.9)',
+                    'rgba(223, 1, 117, 0.9)'
+                ],
+
+                    borderColor: '#000',
+                    borderWidth: 1,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+				}
+				,{
+				    label: 'Quality',
+				    data: data_quality,
+				    type: 'line',
+				    fill: false,
+				    borderColor: '#EC932F',
+                    backgroundColor: '#EC932F',
+                    pointBorderColor: '#000',
+                    pointBackgroundColor: '#000',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#fff',
+				}]
+			},
+
+			options:
+			{
+		        responsive: true,
+		        tooltipTemplate: "<%= value %>",
+		        tooltipFillColor: "rgba(0,0,0,0)",
+		        tooltipFontColor: "#444",
+		        tooltipEvents: [],
+		        tooltipCaretSize: 0,
+
+		        scales: {
+		            yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: '#fff'
+                            },
+                        gridLines: {
+                            display: false,
+                            color:'#fff'
+                            },
+                        scaleLabel: {
+                            display: true,
+                            fontSize: 20,
+                            labelString: 'Quantitative Values',
+                            fontColor: '#fff'
+                            }
+                        }],
+                    xAxes: [{
+                        ticks: {
+                            fontColor: '#fff',
+                            fontSize: 7
+                        },
+                        gridLines: {
+                            display:false,
+                            color:'#fff'
+                        },
+                        scaleLabel: {
+                            display: false,
+                            fontSize: 30,
+                            labelString: 'Current days',
+                            fontColor: '#fff'
+                        }
+                    }]
+                }, //end of scales
+
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        align: 'center',
+                        anchor: 'center',
+                        color: '#fff'
+                     }
+                  },
+
+                title: {
+                    display: true,
+                    text: 'Daily Quantitative vs Qualitative',
+                    fontSize: 30,
+                    padding: 50,
+                    fontColor: '#fff'
+                    },
+
+		        legend: {
+                    position: 'right',
+                    display: false,
+                    labels: {
+                        fontColor: '#000'
+                        }
+                    },
+		        layout: {
+		            padding: {
+		                left: 50,
+		                right: 0,
+		                bottom: 0,
+		                top: 0
+		                }
+		        },
+	        } // end of options
+    }); // end of variable
+} // end of function
+
+{% endblock %}
+
+</script>
+
+{% block content %}
+
+
+<div class = 'row' >
+    <h3 style="color:#fff">You are reviewing:</h3>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current year: <span id="display_year"></span></h4>
+    </div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current month: <span id="display_month"></span></h4>
+    </div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current day: <span id="display_day"></span></h4>
+    </div>
+    <div style="display:inline-block"></div>
+        <div style="display:inline-block"></div>
+        <div style="display:inline-block">
+            <h4 style="color:#fff">Current market: <span id="display_market"></span></h4>
+        </div>
+</div>
+
+
+<div class="col-sm-14">
+    <div><canvas id="quantitative_qualitative_tickets" width="800" height="500"></canvas></div>
+        <table id="results" style="width:100%">
+            <thead>
+                <tr>
+                    <th bgcolor="#fff">Ticket ID</th>
+                    <th bgcolor="#fff">Problem with the ticket</th>
+                    <th bgcolor="#fff">Engineer</th>
+                    <th bgcolor="#fff">Triage Date</th>
+                    <th bgcolor="#fff">Issue Status</th>
+                    <th bgcolor="#fff">Triage Category</th>
+                    <th bgcolor="#fff">Triage Subcategory</th>
+                    <th bgcolor="#fff">Issue Closed Date</th>
+                    <th bgcolor="#fff">Issue re-assigned Date</th>
+                    <th bgcolor="#fff">Priority</th>
+                    <th bgcolor="#fff">File Attachment</th>
+                    <th bgcolor="#fff">Incident Number</th>
+                    <th bgcolor="#fff">MTTI</th>
+                    <th bgcolor="#fff">MTTR</th>
+                    <th bgcolor="#fff">MTTC</th>
+                    <th bgcolor="#fff">MTTR (transferred)</th>
+                    <!--<th bgcolor="#fff">Engineer Finding</th>-->
+                </tr>
+            </thead>
+        <tbody>
+        </tbody>
+        </table>
+</div>
+
+{% endblock content %}

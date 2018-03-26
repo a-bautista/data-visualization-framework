@@ -1,0 +1,354 @@
+{% extends "web_app_navigator/header.html"%}
+
+<script>
+    {% block jquery %}
+	data = {{my_data|safe}}
+	var year = data.year
+    var market = data.market
+    var table_values = data.table_values
+	var graph_values = data.label_values
+	var labels = data.labels
+	var legend = data.legend
+	var x_axis = data.x_axis
+	var y_axis = data.y_axis
+
+	document.getElementById("display_year").innerHTML    = year;
+	document.getElementById("display_market").innerHTML  = market;
+	document.getElementById("display_x_axis").innerHTML  = x_axis;
+	document.getElementById("display_y_axis").innerHTML  = y_axis;
+
+    setChart()
+
+   $('#results').DataTable({
+       data: table_values
+    });
+
+
+
+function setChart()
+{
+    var ctx_graph       = document.getElementById("graph")
+	var display_graph = new Chart(ctx_graph, {
+	    type:'bar',
+		data: {
+			labels: labels,
+			datasets :
+			    [{
+				    label: legend[0],
+					data: graph_values[0],
+                    backgroundColor: 'rgba(251, 95, 4, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+			        label: legend[1],
+					data: graph_values[1],
+                    backgroundColor: 'rgba(202, 28, 28, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[2],
+					data: graph_values[2],
+                    backgroundColor: 'rgba(251, 235, 4, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[3],
+					data: graph_values[3],
+                    backgroundColor: 'rgba(4, 185, 251, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[4],
+					data: graph_values[4],
+                    backgroundColor: 'rgba(79, 192, 22, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[5],
+					data: graph_values[5],
+                    backgroundColor: 'rgba(153, 102, 255, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[6],
+					data: graph_values[6],
+                    backgroundColor: 'rgba(45, 154, 35, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[7],
+					data: graph_values[7],
+                    backgroundColor: 'rgba(154, 39, 35, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[8],
+					data: graph_values[8],
+                    backgroundColor: 'rgba(182, 53, 7, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[9],
+					data: graph_values[9],
+                    backgroundColor: 'rgba(179, 231, 8, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[10],
+					data: graph_values[10],
+                    backgroundColor: 'rgba(140, 4, 247, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[11],
+					data: graph_values[11],
+                    backgroundColor: 'rgba(8, 8, 231, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[12],
+					data: graph_values[12],
+                    backgroundColor: 'rgba(231, 8, 157, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[13],
+					data: graph_values[13],
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[14],
+					data: graph_values[14],
+                    backgroundColor: 'rgba(155, 35, 150, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[15],
+					data: graph_values[15],
+                    backgroundColor: 'rgba(186, 165, 9, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			{
+				    label: legend[16],
+					data: graph_values[16],
+                    backgroundColor: 'rgba(28, 201, 51, 0.9)',
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#000'
+			},
+
+			]
+		    },
+			options : {
+		        responsive: true,
+		        tooltipTemplate: "<%= value %>",
+		        tooltipFillColor: "rgba(0,0,0,0)",
+		        tooltipFontColor: "#444",
+		        tooltipEvents: [],
+		        tooltipCaretSize: 0,
+                scales: {
+                   yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            fontColor: '#fff',
+                            fontSize: 10,
+                            },
+                            gridLines: {
+                                display: false,
+                                color:'#fff'
+                                },
+                            scaleLabel: {
+                                display: true,
+                                fontSize: 15,
+                                labelString: 'Number of tickets',
+                                fontColor: '#fff'
+                                },
+                                stacked: true
+                            }],
+                   xAxes: [{
+                        ticks: {
+                            fontColor: '#fff',
+                            fontSize: 10
+                            },
+                            gridLines: {
+                                display:false,
+                                color:'#fff'
+                            },
+                            scaleLabel: {
+                                display: false,
+                                fontSize: 30,
+                                labelString: 'Current days',
+                                fontColor: '#fff'
+                            },
+                            stacked: true
+                        }]
+                   },//end of scales
+
+                plugins: {
+                    datalabels: {
+                          display: true,
+                          align: 'center',
+                          anchor: 'center',
+                          color: '#fff'
+                         }
+                      },
+
+                title: {
+                    display: true,
+                    text: 'Yearly Bidimensional Analysis Tickets',
+                    fontSize: 30,
+                    padding: 50,
+                    fontColor: '#fff'
+                    },
+
+                    legend: {
+                        position: 'right',
+                        display: true,
+
+                    labels: {
+                        fontColor: '#fff'
+                        }
+                    },
+
+                    layout: {
+		            padding: {
+		                left: 50,
+		                right: 0,
+		                bottom: 0,
+		                top: 0
+		            }
+		        },
+	        }// end of options
+    }); // end of display_graph variable
+}// end of function
+
+{% endblock %}
+</script>
+
+{% block content %}
+<div class = 'row' >
+    <h3 style="color:#fff">You are reviewing:</h3>
+    <div style="display:inline-block">
+        <h4 style="color:#fff">Current year: <span id="display_year"></span></h4>
+    </div>
+
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+
+    <div style="display:inline-block">
+            <h4 style="color:#fff">X - Axis: <span id="display_x_axis"></span></h4>
+    </div>
+
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+
+    <div style="display:inline-block">
+            <h4 style="color:#fff">Y - Axis: <span id="display_y_axis"></span></h4>
+    </div>
+
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+    <div style="display:inline-block"></div>
+
+
+    <div style="display:inline-block">
+            <h4 style="color:#fff">Current market: <span id="display_market"></span></h4>
+    </div>
+
+</div>
+
+<div class = 'row' >
+    <div class="col-sm-12">
+        <div><canvas id="graph" width="4000" height="2000"></canvas></div>
+    </div>
+</div>
+
+<br />
+<div class="col-sm-10">
+        <table id="results" style="width:100%">
+            <thead>
+                <tr>
+                   <th bgcolor="#fff">Ticket ID</th>
+                   <th bgcolor="#fff">Engineer Name</th>
+                   <th bgcolor="#fff">Initial Detection</th>
+                   <th bgcolor="#fff">Action Date</th>
+                   <th bgcolor="#fff">Issue Status</th>
+                   <th bgcolor="#fff">Reason for Creating</th>
+                   <th bgcolor="#fff">Problem Category</th>
+                   <th bgcolor="#fff">Affected Devices</th>
+                </tr>
+            </thead>
+        <tbody>
+        </tbody>
+        </table>
+</div>
+
+{% endblock content %}
