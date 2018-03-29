@@ -44,7 +44,7 @@ class DropDownMenuFormQuantitativeQualitativeDaily(forms.Form):
     month = forms.ChoiceField(choices=[x for x in months], initial=date.today().month)
     year  = forms.ChoiceField(choices=[(x,x) for x in range(2017,2021)], initial=date.today().year)
 
-'''class DropDownMenuFormQuantitativeQualitativeYearly(forms.Form):
+class DropDownMenuFormQuantitativeQualitativeYearly(forms.Form):
     list_of_engineers = []
     querySet = SecurityAuditEngineer.objects.all()
 
@@ -54,7 +54,7 @@ class DropDownMenuFormQuantitativeQualitativeDaily(forms.Form):
     engineer = forms.ChoiceField(choices=[(x,x) for x in list_of_engineers], initial=list_of_engineers[0])
     week_comparison_one = forms.ChoiceField(choices=[(x,x) for x in range(1,53)], initial=date.today().isocalendar()[1])
     week_comparison_two = forms.ChoiceField(choices=[(x, x) for x in range(1, 53)], initial=date.today().isocalendar()[1])
-    year = forms.ChoiceField(choices=[(x, x) for x in range(2017, 2021)], initial=date.today().year)'''
+    year = forms.ChoiceField(choices=[(x, x) for x in range(2017, 2021)], initial=date.today().year)
 
 class DropDownMonthlyBidimensionalMenuFormSecurityAudit(forms.Form):
     months = ("1", 'January'), ("2", 'February'), ("3", 'March'), ("4", 'April'), ("5", 'May'), ("6", 'June'), \

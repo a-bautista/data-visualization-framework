@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from .forms import DropDownMenuForm, DropDownMenuFormSecurityAudit,DropDownMenuFormQuantitativeQualitativeDaily, \
     DropDownMenuFormTicketsPerWeek, DropDownMonthlyMenuForm, DropDownYearlyMenuFormSecurityAudit, \
-    DropDownMonthlyBidimensionalMenuFormSecurityAudit, DropDownYearlyBidimensionalMenuFormSecurityAudit
-    # DropDownMenuFormQuantitativeQualitativeYearly
+    DropDownMonthlyBidimensionalMenuFormSecurityAudit, DropDownYearlyBidimensionalMenuFormSecurityAudit,\
+    DropDownMenuFormQuantitativeQualitativeYearly
 
 from datetime import date, datetime, timedelta
 from .models import SecurityAuditEngineer, SecurityAuditStatusTicket, SecurityAuditAffectedDevicesCategory, \
     SecurityAuditReasonForCreatingTicket, SecurityAuditProblemCategory, SecurityAuditVendor, SecurityAuditPriorityTicket
-import json, dateutil.parser, requests, calendar, psycopg2, operator
-import numpy as np, pypyodbc, pandas as pd
+import json, dateutil.parser, calendar, psycopg2, operator
+import numpy as np, pandas as pd
 
 
 ###################### declare the html views ###########################
@@ -16,7 +16,7 @@ import numpy as np, pypyodbc, pandas as pd
 def index(request):
     return render(request, 'web_app_navigator/header_home.html')
 
-################################ API views in Central America ##########################
+################################ API views ##########################
 
 
 #################### Main views in Security  #################################
@@ -87,7 +87,7 @@ def tickets_quantitative_qualitative_daily(request):
 
         ##################### Quality measure ############################################
         # get the bad tickets and the count of bad tickets that were detected
-        dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_colombia(
+        dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_quantitative_qualitative(
             dict_lists_of_lists_data_engineers, dictionary_quality_engineers)
 
         #print("total amount of tickets: ", total_amount_tickets_per_engineer)
@@ -199,7 +199,7 @@ def tickets_quantitative_qualitative_weekly(request):
 
         ##################### Quality measure ############################################
         # get the bad tickets and the count of bad tickets that were detected
-        dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_colombia(
+        dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_quantitative_qualitative(
             dict_lists_of_lists_data_engineers, dictionary_quality_engineers)
 
 
@@ -1000,15 +1000,14 @@ def tickets_reason_for_creating_yearly(request):
 def tickets_quantitative_qualitative_per_engineer_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/quantitative_qualitative.html'
-        form = DropDownYearlyMenuFormSecurityAudit()
-        #form = DropDownMenuFormQuantitativeQualitativeYearly()
+        form = DropDownMenuFormQuantitativeQualitativeYearly()
         return render(request, template_name, {'form': form})
 
     elif request.method == "POST":
         template_name = 'web_app_navigator/Country_A/results/yearly/quantitative_qualitative.html'
         number_of_days = get_current_days_of_week()
         dictionary_data_of_engineers, engineer, initial_date, ending_date, year, list_of_weeks = \
-            get_rows_of_data_colombia_quantitative_qualitative_yearly(request)
+            get_rows_of_data_quantitative_qualitative_yearly(request)
 
         dictionary_quality = {}
 
@@ -1204,174 +1203,123 @@ def tickets_bidimensional_analysis_yearly(request):
 
 # working correctly but the only problem seems to be with the tickets with the same id, they won't appear
 # because they are not attached to a list
-def detect_bad_tickets_colombia(dictionary_data_of_engineers, dictionary_quality_engineers):
+def detect_bad_tickets_quantitative_qualitative(dictionary_data_of_engineers, dictionary_quality_engineers):
     dictionary_reason_bad_ticket = {}
-    bad_categories = ["Interference: Internal_Interference", "Interference: External_Interference",
-                      "Optimization: Planned Works", "Capacity: Codes", "Capacity: Upgrade",
-                      "Capacity: Transport Capacity", "Transport: Iub Interface"]
+
+    ''''{"Id": [], 0
+        "Vendor": [], 1
+    "Category": [], 2
+    "Problem_Category": [], 3
+    "Initial_Detection": [], 4
+    "Last_Day_Track": [], 5
+    "Issue_Closed_Date": [], 6
+    "Action_Date": [], 7
+    "Affected_Devices": [], 8
+    "Security_Engineer": [], 9
+    "Reason_For_Creating": [], 10
+    "SLA_MET": [], 11
+    "Issue_Status": [], 12
+    "Issue_Re_Assigned_Date": [], 13
+    "Priority": [], 14
+    "KPI_I": [], 15 24
+    "KPI_II": [], 16 25
+    "KPI_III": [], 17 26
+    "KPI_IV": [] 18 27}
+    
+    '''
 
     for engineer, engineer_list in dictionary_data_of_engineers.items():
         for element in engineer_list:
-            if element[19] ==  "Transferred" or element[19] == "Manual Closed" or element[19] == "Deferred":
-                if element[19] == "Transferred" and element[13] == "Triage":
-                    #print(engineer, "entered rule 1")
-                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                    dictionary_reason_bad_ticket[element[0]] = (element[0], "Triage category should not be set to Triage",
-                    element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                    element[19], element[21], element[16], element[24], element[25], element[26], element[27])
-
-                elif element[19] == "Manual Closed" and element[13] != "Triage":
-                    #print(engineer, "entered rule 2")
-                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                    dictionary_reason_bad_ticket[element[0]] = (element[0], "Triage category should be set to Triage",
-                    element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                    element[19], element[21], element[16], element[24], element[25], element[26], element[27])
-
-                elif element[19] == "Manual Closed" and element[14] in bad_categories:
-                    #print(engineer, "entered rule 3")
-                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                    dictionary_reason_bad_ticket[element[0]] = (element[0], "Triage subcategory should not be in the "\
-                    " following subcategories: Interference: Internal_Interference OR Interference: External_Interference"\
-                    " OR Optimization: Planned Works OR Capacity: Codes OR Capacity: Upgrade"\
-                    " OR Capacity: Transport Capacity OR Transport: Iub Interface", element[15], element[12], element[19],
-                    element[13], element[14], element[11], element[20],element[19], element[21], element[16], element[24],
-                    element[25], element[26], element[27])
-
-                elif element[19] == "None" or element[14] == "None" or element[22] == "None" or element[23] == "None" or \
-                     element[21] == "None" or element[16] == "None":
-                    #print(engineer, "entered rule 4")
-                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                    dictionary_reason_bad_ticket[element[0]] = (element[0], "Verify that the following fields are different from empty:" \
-                    "Triage category, triage subcategory, priority, engineer finding, file attachment, incident number",
-                    element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                    element[22], element[21], element[16], element[24], element[25], element[26], element[27])
-
-                # a ticket with same id can appear twice because of the rules which is correct but this is not the case
-                # the try and except are necessary to prevent the read of non integer values
-                elif element[19] == "Manual Closed":
-                    if element[24] != "None":
+            if element[12] ==  "Transferred" or element[12] == "Closed" or element[12] == "In Progress":
+                if element[12] == "Closed":
+                    if element[15] != "None":
                         try:
-                            if int(element[24]) < 0 or int(element[24]) > 48:
+                            if int(element[15]) < 0 or int(element[15]) > 48:
                                 #print(engineer, "rule 5")
                                 #print(element[0])
                                 dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                                dictionary_reason_bad_ticket[element[0]] = (element[0],"MTTI value was either lower than 0 or greater than 48",
-                                element[15], element[12],element[19], element[13], element[14], element[11],element[20],
-                                element[22], element[21],element[16], element[24],element[25], element[26], element[27])
+                                dictionary_reason_bad_ticket[element[0]] = (element[0],"KPI_I value was either lower than 0 or greater than 48",
+                                element[9], element[7],element[12], element[2], element[6], element[13],element[14], element[15],
+                                element[16],element[17], element[18])
                         except ValueError:
                             pass
 
-                    if element[25] != "None":
+                    if element[16] != "None":
                         try:
-                            if int(element[25]) < 0 or int(element[25]) > 48:
+                            if int(element[16]) < 0 or int(element[16]) > 48:
                                 #print(engineer, " entered rule 6")
                                 #print(element[0])
                                 dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                                dictionary_reason_bad_ticket[element[0]] = (element[0], "MTTR value was either lower than 0 or greater than 48",
-                                element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                                element[22], element[21], element[16], element[24], element[25], element[26], element[27])
-                                #print(dictionary_reason_bad_ticket)
+                                dictionary_reason_bad_ticket[element[0]] = (element[0], "KPI_II value was either lower than 0 or greater than 48",
+                                element[9], element[7], element[12],element[2], element[6], element[13], element[14], element[15],
+                                element[16], element[17], element[18])
                         except ValueError:
                             pass
 
-                    if element[26] != "None":
+                    if element[17] != "None":
                         try:
-                            if int(element[26]) >= 72:
+                            if int(element[17]) >= 72:
                                 #print(engineer, "rule 7")
                                 #print(element[0])
                                 dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                                dictionary_reason_bad_ticket[element[0]] = (element[0], "MTTC value was greater than 72",
-                                element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                                element[22], element[21], element[16], element[24], element[25], element[26], element[27])
-                                #print(dictionary_reason_bad_ticket)
+                                dictionary_reason_bad_ticket[element[0]] = (element[0], "KPI_III value was greater than 72",
+                                element[9], element[7], element[12], element[2], element[6], element[13], element[14], element[15],
+                                element[16], element[17], element[18])
                         except ValueError:
                             pass
 
-                elif element[19] == "Transferred":
-                    if element[24] != "None":
+                elif element[12] == "Transferred":
+                    if element[15] != "None":
                         try:
-                            if int(element[24]) < 0 or int(element[24]) > 48:
+                            if int(element[15]) < 0 or int(element[15]) > 48:
                                 #print(engineer, "rule 8")
                                 dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                                dictionary_reason_bad_ticket[element[0]] = (element[0], "MTTI value was either lower than 0 or greater than 48",
-                                element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                                element[22], element[21], element[16], element[24], element[25], element[26], element[27])
+                                dictionary_reason_bad_ticket[element[0]] = (element[0], "KPI_I value was either lower than 0 or greater than 48",
+                                element[9], element[7], element[12], element[2], element[6], element[13], element[14], element[15],
+                                element[16], element[17], element[18])
                         except ValueError:
                             pass
 
-                    if element[27] != "None":
+                    if element[18] != "None":
                         try:
-                            if int(element[27]) < 0 or int(element[27]) > 48:
+                            if int(element[18]) < 0 or int(element[18]) > 48:
                                 #print(engineer, "rule 9")
                                 dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                                dictionary_reason_bad_ticket[element[0]] = (element[0],"MTTR (transferred issue) value was either lower than 0 or greater than 48",
-                                element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                                element[22], element[21], element[16], element[24], element[25], element[26], element[27])
+                                dictionary_reason_bad_ticket[element[0]] = (element[0],"KPI_IV value was either lower than 0 or greater than 48",
+                                element[9], element[7], element[12], element[2], element[6], element[13], element[14],
+                                element[15],element[16], element[17], element[18])
                         except ValueError:
                             pass
 
-            elif (element[19] == "Queued" or element[19] == "Open"):
-                if element[11] != "None" or element[20] != "None":
-                    #print(engineer, "rule 10")
-                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                    dictionary_reason_bad_ticket[element[0]] = (element[0], "Issue closed date or issue re-assigned date should contain empty values",
-                    element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                    element[22], element[21], element[16], element[24], element[25], element[26], element[27])
-
-                if element[24] != "None":
+            elif (element[12] == "Queued" or element[12] == "Open"):
+                if element[15] != "None":
                     try:
-                        if (int(element[24]) < 0 or int(element[24]) > 48):
+                        if (int(element[15]) < 0 or int(element[15]) > 48):
                             #print(engineer, "rule 11")
                             dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                            dictionary_reason_bad_ticket[element[0]] = (element[0], "MTTI value was lower than 0 or greater than 48",
-                            element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                            element[22], element[21], element[16], element[24], element[25], element[26], element[27])
-
+                            dictionary_reason_bad_ticket[element[0]] = (element[0], "KPI_I value was lower than 0 or greater than 48",
+                            element[9], element[7], element[12], element[2], element[6], element[13], element[14],
+                            element[15], element[16], element[17],element[18])
                     except ValueError:
                         pass
 
-                if element[25] != "None":
+                if element[16] != "None":
                     try:
-                        if int(element[25]) < 0 or int(element[25]) > 48:
+                        if int(element[16]) < 0 or int(element[16]) > 48:
                             #print(engineer, "rule 12")
                             dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
-                            dictionary_reason_bad_ticket[element[0]] = (element[0], "MTTR value was lower than 0 or greater than 48",
-                            element[15], element[12], element[19], element[13], element[14], element[11], element[20],
-                            element[22], element[21], element[16], element[24], element[25], element[26], element[27])
+                            dictionary_reason_bad_ticket[element[0]] = (element[0], "KPI_II value was lower than 0 or greater than 48",
+                            element[9], element[7], element[12], element[2], element[6], element[13], element[14],
+                            element[15], element[16], element[17],element[18])
                     except ValueError:
                         pass
 
-                    ''' reference
-                    dictionary_key_values =      #index value
-                    {    "Id":[],                     0
-                         "Vendor": [],                1
-                         "Category": [],              2
-                         "Problem_Category": [],      3 
-                         "Initial_Detection": [],     4
-                         "Last_Day_Track": [],        5
-                         "Issue_Closed_Date": [],     6
-                         "Action_Date": [],           7
-                         "Affected_Devices": [],      8
-                         "Security_Engineer": [],     9
-                         "Reason_For_Creating": [],   10
-                         "SLA_MET": [],               11
-                         "Issue_Status": [],          12
-                         "Issue_Re_Assigned_Date": [],13
-                         "Priority": [],              14
-                         "KPI_I": [],                 15
-                         "KPI_II":[],                 16
-                         "KPI_III": [],               17
-                         "KPI_IV": []                 18 }       
-                    '''
     return dictionary_reason_bad_ticket, dictionary_quality_engineers
 
 #working correctly
 def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engineers, dictionary_quality_engineers,
                                       engineer,year):
     list_reason_bad_ticket = []
-    bad_categories = ["Interference: Internal_Interference", "Interference: External_Interference",
-                      "Optimization: Planned Works", "Capacity: Codes", "Capacity: Upgrade",
-                      "Capacity: Transport Capacity", "Transport: Iub Interface"]
 
     list_of_weeks, values = zip(*dictionary_quality_engineers.items())
     # iterate over a dictionary with lists with this nested loop
@@ -1393,118 +1341,84 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
         ending_datetime_date_format = beginning_datetime_date_format + timedelta(days=7)
 
         for value in dictionary_data_of_engineers[engineer]:
-            if dateutil.parser.parse(value[12]) >= beginning_datetime_date_format and dateutil.parser.parse(value[12]) < ending_datetime_date_format:
-                if value[19] == "Transferred" or value[19] == "Manual Closed" or value[19] == "Deferred":
-                    if value[19] == "Transferred" and value[13] == "Triage":
-                        dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                        list_reason_bad_ticket.append(( value[0],"Triage category should not be set to Triage",
-                                                        value[15], value[12], value[19], value[13], value[14],
-                                                        value[11], value[20], value[22], value[21], value[16],
-                                                        value[24], value[25], value[26], value[27]))
-
-                    elif value[19] == "Manual Closed" and value[13] != "Triage":
-                        dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                        list_reason_bad_ticket.append(( value[0],"Triage category should be set to Triage",
-                                                        value[15], value[12], value[19], value[13], value[14],
-                                                        value[11], value[20], value[22], value[21], value[16],
-                                                        value[24], value[25], value[26], value[27]))
-
-                    elif value[19] == "Manual Closed" and value[14] in bad_categories:
-                        dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                        list_reason_bad_ticket.append(( value[0], "Triage subcategory should not be in the following subcategories: Interference: Internal_Interference OR "\
-                                                        "Interference: External_Interference OR Optimization: Planned Works OR Capacity: Codes OR Capacity: Upgrade"\
-                                                        "OR Capacity: Transport Capacity OR Transport: Iub Interface" ,
-                                                        value[15], value[12], value[19], value[13], value[14], value[11], value[20],
-                                                        value[22], value[21], value[16], value[24], value[25], value[26], value[27]))
-
-                    elif value[13] == "None" or value[14] == "None" or value[22] == "None" or value[23] == "None" or \
-                         value[21] == "None" or value[16] == "None":
-                        dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                        "Triage category, triage subcategory, priority, engineer finding, file attachment, incident number."
-                        list_reason_bad_ticket.append(( value[0], "Verify that the following fields are different from empty:" \
-                        "Triage category, triage subcategory, priority, engineer finding, file attachment, incident number",
-                        value[15], value[12], value[19], value[13], value[14],value[11], value[20], value[22], value[21],
-                        value[16], value[24], value[25], value[26], value[27]))
-
-                    #a ticket with same id can appear twice because of the rules which is correct
-                    #the try and except are necessary to avoid reading values that are not int type
-                    elif value[19] == "Manual Closed":
-                        if value[24]!="None":
+            if dateutil.parser.parse(value[7]) >= beginning_datetime_date_format and dateutil.parser.parse(value[7]) < ending_datetime_date_format:
+                if value[12] == "Transferred" or value[12] == "Closed" or value[12] == "In Progress":
+                    if value[12] == "Closed":
+                        if value[15] != "None":
+                            # a ticket with same id can appear twice because of the rules which is correct
+                            # the try and except are necessary to avoid reading values that are not int type
                             try:
-                                if int(value[24]) < 0 or int(value[24]) > 48:
+                                if int(value[15]) < 0 or int(value[15]) > 48:
                                     dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    list_reason_bad_ticket.append((value[0], "MTTI value was either lower than 0 or greater than 48",
-                                    value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                    value[21], value[16], value[24], value[25], value[26], value[27]))
+                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    list_reason_bad_ticket.append(
+                                        (value[0], "KPI_I value was either lower than 0 or greater than 48",
+                                         value[9],  value[7], value[12], value[2], value[6], value[13],
+                                         value[14], value[15],value[16], value[17], value[18]))
                             except ValueError:
                                 pass
 
-                        if value[25]!="None":
+                        if value[16] != "None":
                             try:
-                                if int(value[25]) < 0 or int(value[25]) > 48:
+                                if int(value[16]) < 0 or int(value[16]) > 48:
                                     dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    list_reason_bad_ticket.append((value[0],"MTTR value was either lower than 0 or greater than 48",
-                                    value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                    value[21], value[16], value[24], value[25], value[26], value[27]))
+                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    list_reason_bad_ticket.append((value[0], "KPI_II value was either lower than 0 or greater than 48",
+                                    value[9], value[7], value[12], value[2], value[6], value[13],
+                                    value[14], value[15], value[16], value[17], value[18]))
                             except ValueError:
                                 pass
 
-                        if value[26] != "None":
+                        if value[17] != "None":
                             try:
-                                if int(value[26]) >= 72:
-                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    list_reason_bad_ticket.append((value[0], "MTTC value was greater than 72",
-                                    value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                    value[21], value[16], value[24], value[25], value[26], value[27]))
+                                if int(value[17]) >= 72:
+                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    list_reason_bad_ticket.append((value[0], "KPI_III value was either lower than 0 or greater than 48",
+                                    value[9], value[7], value[12], value[2], value[6], value[13],
+                                    value[14], value[15], value[16], value[17], value[18]))
                             except ValueError:
                                 pass
 
-                    elif value[19] == "Transferred":
-                        if value[24]!="None":
+                    elif value[12] == "Transferred":
+                        if value[15] != "None":
                             try:
-                                if int(value[24]) < 0 or int(value[24]) > 48:
-                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    list_reason_bad_ticket.append((value[0],"MTTI value was either lower than 0 or greater than 48",
-                                    value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                    value[21], value[16], value[24], value[25], value[26], value[27]))
+                                if int(value[15]) < 0 or int(value[15]) > 48:
+                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    list_reason_bad_ticket.append((value[0], "KPI_I value was either lower than 0 or greater than 48",
+                                    value[9], value[7], value[12], value[2], value[6], value[13],
+                                    value[14], value[15], value[16], value[17], value[18]))
                             except ValueError:
                                 pass
 
-                        if value[27] != "None":
+                        if value[18] != "None":
                             try:
-                                if int(value[27]) < 0 or int(value[27]) > 48:
-                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    list_reason_bad_ticket.append((value[0], "MTTR (transferred issue) value was either lower than 0 or greater than 48",
-                                    value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                    value[21], value[16], value[24], value[25], value[26], value[27]))
+                                if int(value[18]) < 0 or int(value[18]) > 48:
+                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    list_reason_bad_ticket.append((value[0], "KPI_IV value was either lower than 0 or greater than 48",
+                                    value[9], value[7], value[12], value[2], value[6], value[13],
+                                    value[14], value[15], value[16], value[17], value[18]))
                             except ValueError:
                                 pass
 
-                elif (value[19] == "Queued" or value[19] == "Open"):
-                    if value[11] != "None" or value[20] != "None":
-                        dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                        list_reason_bad_ticket.append(( value[0], "Issue closed date or issue re-assigned date should contain empty values",
-                        value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                        value[21], value[16], value[24], value[25], value[26], value[27]))
-
-                    if value[24]!="None":
+                elif (value[12] == "Queued" or value[12] == "Open"):
+                    if value[15] != "None":
                         try:
-                            if (int(value[24]) < 0 or int(value[24]) > 48):
-                                dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                list_reason_bad_ticket.append((value[0], "MTTI value was lower than 0 or greater than 48",
-                                value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                value[21], value[16], value[24], value[25], value[26], value[27]))
+                            if (int(value[15]) < 0 or int(value[15]) > 48):
+                                dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                list_reason_bad_ticket.append((value[0], "KPI_I value was either lower than 0 or greater than 48",
+                                value[9], value[7], value[12], value[2], value[6], value[13],
+                                value[14], value[15], value[16], value[17], value[18]))
                         except ValueError:
                             pass
 
-
-                    if value[25]!="None":
+                    if value[16] != "None":
                         try:
-                            if int(value[25]) < 0 or int(value[25]) > 48:
-                                dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                list_reason_bad_ticket.append((value[0], "MTTR value was lower than 0 or greater than 48",
-                                value[15], value[12], value[19], value[13], value[14], value[11], value[20], value[22],
-                                value[21], value[16], value[24], value[25], value[26], value[27]))
+                            if int(value[16]) < 0 or int(value[16]) > 48:
+                                # print(engineer, "rule 12")
+                                dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                list_reason_bad_ticket.append((value[0], "KPI_II value was either lower than 0 or greater than 48",
+                                value[9], value[7], value[12], value[2], value[6], value[13],
+                                value[14], value[15], value[16], value[17], value[18]))
                         except ValueError:
                             pass
 
@@ -1934,7 +1848,7 @@ def clear_engineer_names(dataframe_filtered_data):
     be on vacation or might have quit, but the counting process does not take into account these engineers with 0 values .'''
     return dict_engineers_lists_of_lists_data
 
-def get_rows_of_data_colombia_quantitative_qualitative_yearly(request):
+def get_rows_of_data_quantitative_qualitative_yearly(request):
     engineer = request.POST.get('engineer',None)
     week_one = request.POST.get('week_comparison_one', None)
     week_two = request.POST.get('week_comparison_two', None)
@@ -1974,7 +1888,7 @@ def get_rows_of_data_colombia_quantitative_qualitative_yearly(request):
     required_space = " "
     # hold the count of tickets per engineer and then erase the content once the next engineer comes from the list
 
-    for index_f, value_f in enumerate(dataframe_filtered_data["Triage_Engineer"]):
+    for index_f, value_f in enumerate(dataframe_filtered_data["Security_Engineer"]):
     # patch to avoid reading None type values
         if value_f != 'None':
             rows_data_per_engineer = []
@@ -1988,33 +1902,24 @@ def get_rows_of_data_colombia_quantitative_qualitative_yearly(request):
                     #        str(value_f['triage engineer']).lower().split(' ')[1]:
                     # once you have found the engineer that you are looking for, append its data dictionary
                     rows_data_per_engineer.append(dataframe_filtered_data["Id"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Sector_Name"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Site_Name"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["BSC_RNC_TAC"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Region"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Vendor"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Technology"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Category"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Problem_Category"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["First_Offender_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Last_Offender_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Aging"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Initial_Detection"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Last_Day_Track"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Closed_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Category"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Subcategory"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Engineer"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Incident_Number"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Action_Date"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Affected_Devices"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Security_Engineer"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Reason_For_Creating"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["SLA_MET"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Status"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Re_Assigned_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["File_Attachment"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Priority"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Engineer_Finding"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTI"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTR"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTC"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTR_Transferred_Issue"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_I"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_II"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_III"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_IV"][index_f])
                     # temp_list.append(rows_data_per_engineer)
                     # rows_data_per_engineer.append(";")
             # if you found a point or any other division character such as .,/
@@ -2025,33 +1930,24 @@ def get_rows_of_data_colombia_quantitative_qualitative_yearly(request):
                     # original
                     # if value_e.lower() == value_e.lower() == str(value_f['triage engineer']).lower().split('.')[0] + \required_space + str(value_f['triage engineer']).lower().split('.')[1]:
                     rows_data_per_engineer.append(dataframe_filtered_data["Id"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Sector_Name"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Site_Name"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["BSC_RNC_TAC"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Region"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Vendor"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Technology"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Category"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Problem_Category"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["First_Offender_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Last_Offender_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Aging"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Initial_Detection"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Last_Day_Track"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Closed_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Category"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Subcategory"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Triage_Engineer"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Incident_Number"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Action_Date"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Affected_Devices"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["Security_Engineer"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Reason_For_Creating"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["SLA_MET"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Status"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Issue_Re_Assigned_Date"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["File_Attachment"][index_f])
                     rows_data_per_engineer.append(dataframe_filtered_data["Priority"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["Engineer_Finding"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTI"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTR"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTC"][index_f])
-                    rows_data_per_engineer.append(dataframe_filtered_data["MTTR_Transferred_Issue"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_I"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_II"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_III"][index_f])
+                    rows_data_per_engineer.append(dataframe_filtered_data["KPI_IV"][index_f])
                     # temp_list.append(rows_data_per_engineer)
             # insert only rows with data into the dictionary
             if rows_data_per_engineer:
