@@ -29,11 +29,11 @@ class DropDownMonthlyMenuForm(forms.Form):
 class DropDownYearlyMenuFormSecurityAudit(forms.Form):
     year = forms.ChoiceField(choices=[(x, x) for x in range(2017, 2021)], initial=date.today().year)
 
-class DropDownMenuFormSecurityAudit(forms.Form):
-    # the line from below indicates to start the current week in Sunday and end in Saturday
-    #week = forms.ChoiceField(choices=[(x, x) for x in range(1, 53)], initial=datetime.now().strftime("%U"))
-    week = forms.ChoiceField(choices=[(x, x) for x in range(1, 53)], initial=date.today().isocalendar()[1])
-    year = forms.ChoiceField(choices=[(x, x) for x in range(2017, 2021)], initial=date.today().year)
+#class DropDownMenuFormSecurityAudit(forms.Form):
+#    # the line from below indicates to start the current week in Sunday and end in Saturday
+#    #week = forms.ChoiceField(choices=[(x, x) for x in range(1, 53)], initial=datetime.now().strftime("%U"))
+#    week = forms.ChoiceField(choices=[(x, x) for x in range(1, 53)], initial=date.today().isocalendar()[1])
+#    year = forms.ChoiceField(choices=[(x, x) for x in range(2017, 2021)], initial=date.today().year)
 
 
 class DropDownMenuFormQuantitativeQualitativeDaily(forms.Form):
@@ -61,11 +61,11 @@ class DropDownMonthlyBidimensionalMenuFormSecurityAudit(forms.Form):
              ("7", 'July'), ("8", 'August'), ("9", 'September'), ("10", 'October'), ("11", 'November'), (
                  "12", 'December')
     list_of_categories = ("issue status","Issue Status"),("problem category","Problem Category"),\
-                         ("reason for creating","Reason for Creating"),("technology", "Technology"), ("triage category","Triage Category"), \
-                         ("triage subcategory","Triage Subcategory"), ("vendor", "Vendor"), ("priority", "Priority")
+                         ("reason for creating","Reason for Creating"), ("category","Category"), \
+                         ("affected devices","Affected Devices"), ("vendor", "Vendor"), ("priority", "Priority")
     list_of_categories_y = ("issue status","Issue Status"),("problem category","Problem Category"),\
-                           ("reason for creating","Reason for Creating"),("technology", "Technology"), ("triage category","Triage Category"), \
-                           ("vendor", "Vendor"), ("priority","Priority")
+                           ("reason for creating","Reason for Creating"),("category","Category"), \
+                           ("affected devices", "Affected Devices"), ("vendor", "Vendor"), ("priority","Priority")
 
     x_axis = forms.ChoiceField(choices=[x for x in list_of_categories], initial=list_of_categories[0])
     y_axis = forms.ChoiceField(choices=[y for y in list_of_categories_y], initial=list_of_categories_y[1])
@@ -74,12 +74,12 @@ class DropDownMonthlyBidimensionalMenuFormSecurityAudit(forms.Form):
 
 
 class DropDownYearlyBidimensionalMenuFormSecurityAudit(forms.Form):
-    list_of_categories = ("issue status","Issue Status"),("problem category","Problem Category"),\
-                         ("reason for creating","Reason for Creating"),("technology", "Technology"), ("triage category","Triage Category"), \
-                         ("triage subcategory","Triage Subcategory"), ("vendor", "Vendor"), ("priority","Priority")
-    list_of_categories_y = ("issue status","Issue Status"),("problem category","Problem Category"),\
-                           ("reason for creating","Reason for Creating"),("technology", "Technology"), ("triage category","Triage Category"), \
-                           ("vendor", "Vendor"), ("priority","Priority")
+    list_of_categories = ("issue status", "Issue Status"), ("problem category", "Problem Category"), \
+                         ("reason for creating", "Reason for Creating"), ("category", "Category"), \
+                         ("affected devices", "Affected Devices"), ("vendor", "Vendor"), ("priority", "Priority")
+    list_of_categories_y = ("issue status", "Issue Status"), ("problem category", "Problem Category"), \
+                           ("reason for creating", "Reason for Creating"), ("category", "Category"), \
+                           ("affected devices", "Affected Devices"), ("vendor", "Vendor"), ("priority", "Priority")
 
     x_axis = forms.ChoiceField(choices=[x for x in list_of_categories], initial=list_of_categories[0])
     y_axis = forms.ChoiceField(choices=[y for y in list_of_categories_y], initial=list_of_categories_y[1])

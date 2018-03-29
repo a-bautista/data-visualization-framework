@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from .forms import DropDownMenuForm, DropDownMenuFormSecurityAudit,DropDownMenuFormQuantitativeQualitativeDaily, \
-    DropDownMenuFormTicketsPerWeek, DropDownMonthlyMenuForm, DropDownYearlyMenuFormSecurityAudit, \
-    DropDownMonthlyBidimensionalMenuFormSecurityAudit, DropDownYearlyBidimensionalMenuFormSecurityAudit,\
+from .forms import DropDownMenuForm, DropDownMenuFormQuantitativeQualitativeDaily, DropDownMonthlyMenuForm, \
+    DropDownYearlyMenuFormSecurityAudit, DropDownMonthlyBidimensionalMenuFormSecurityAudit, DropDownYearlyBidimensionalMenuFormSecurityAudit,\
     DropDownMenuFormQuantitativeQualitativeYearly
 
 from datetime import date, datetime, timedelta
 from .models import SecurityAuditEngineer, SecurityAuditStatusTicket, SecurityAuditAffectedDevicesCategory, \
-    SecurityAuditReasonForCreatingTicket, SecurityAuditProblemCategory, SecurityAuditVendor, SecurityAuditPriorityTicket
+    SecurityAuditReasonForCreatingTicket, SecurityAuditProblemCategory, SecurityAuditVendor, SecurityAuditPriorityTicket,\
+    SecurityAuditCategory
 import json, dateutil.parser, calendar, psycopg2, operator
 import numpy as np, pandas as pd
 
@@ -752,14 +752,17 @@ def tickets_bidimensional_analysis_monthly(request):
         elif x_axis == "reason for creating":
             x_categories_list = get_fields_reason_for_creating()
 
-        elif x_axis == "problem category":
-            x_categories_list = get_fields_problem_category()
-
         elif x_axis == "priority":
             x_categories_list = get_fields_priority()
 
+        elif x_axis == "problem category":
+            x_categories_list = get_fields_problem_category()
+
         elif x_axis == "affected devices":
             x_categories_list = get_fields_affected_devices()
+
+        elif x_axis == "category":
+            x_categories_list = get_fields_category()
 
         elif x_axis == "vendor":
             x_categories_list = get_fields_vendors()
@@ -779,6 +782,9 @@ def tickets_bidimensional_analysis_monthly(request):
 
         elif y_axis == "affected devices":
             y_categories_list = get_fields_affected_devices()
+
+        elif x_axis == "category":
+            x_categories_list = get_fields_category()
 
         elif y_axis == "vendor":
             y_categories_list = get_fields_vendors()
@@ -1136,18 +1142,16 @@ def tickets_bidimensional_analysis_yearly(request):
         elif x_axis == "problem category":
             x_categories_list = get_fields_problem_category()
 
-        # retrieval values of triage engineer is deprecated
-        #elif x_axis == "triage engineer":
-        #    x_categories_list = get_all_engineers()
-
         elif x_axis == "affected devices":
             x_categories_list = get_fields_affected_devices()
 
+        elif x_axis == "category":
+            x_categories_list = get_fields_category()
 
         elif x_axis == "vendor":
             x_categories_list = get_fields_vendors()
 
-        #y retrieval values
+        # y retrieval values
         if y_axis == "issue status":
             y_categories_list = get_fields_ticket_status()
 
@@ -1162,6 +1166,9 @@ def tickets_bidimensional_analysis_yearly(request):
 
         elif y_axis == "affected devices":
             y_categories_list = get_fields_affected_devices()
+
+        elif x_axis == "category":
+            x_categories_list = get_fields_category()
 
         elif y_axis == "vendor":
             y_categories_list = get_fields_vendors()
@@ -1350,7 +1357,6 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                             try:
                                 if int(value[15]) < 0 or int(value[15]) > 48:
                                     dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
                                     list_reason_bad_ticket.append(
                                         (value[0], "KPI_I value was either lower than 0 or greater than 48",
                                          value[9],  value[7], value[12], value[2], value[6], value[13],
@@ -1362,7 +1368,6 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                             try:
                                 if int(value[16]) < 0 or int(value[16]) > 48:
                                     dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
-                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
                                     list_reason_bad_ticket.append((value[0], "KPI_II value was either lower than 0 or greater than 48",
                                     value[9], value[7], value[12], value[2], value[6], value[13],
                                     value[14], value[15], value[16], value[17], value[18]))
@@ -1372,7 +1377,7 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                         if value[17] != "None":
                             try:
                                 if int(value[17]) >= 72:
-                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
                                     list_reason_bad_ticket.append((value[0], "KPI_III value was either lower than 0 or greater than 48",
                                     value[9], value[7], value[12], value[2], value[6], value[13],
                                     value[14], value[15], value[16], value[17], value[18]))
@@ -1383,7 +1388,7 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                         if value[15] != "None":
                             try:
                                 if int(value[15]) < 0 or int(value[15]) > 48:
-                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
                                     list_reason_bad_ticket.append((value[0], "KPI_I value was either lower than 0 or greater than 48",
                                     value[9], value[7], value[12], value[2], value[6], value[13],
                                     value[14], value[15], value[16], value[17], value[18]))
@@ -1393,7 +1398,7 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                         if value[18] != "None":
                             try:
                                 if int(value[18]) < 0 or int(value[18]) > 48:
-                                    dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                    dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
                                     list_reason_bad_ticket.append((value[0], "KPI_IV value was either lower than 0 or greater than 48",
                                     value[9], value[7], value[12], value[2], value[6], value[13],
                                     value[14], value[15], value[16], value[17], value[18]))
@@ -1404,7 +1409,7 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                     if value[15] != "None":
                         try:
                             if (int(value[15]) < 0 or int(value[15]) > 48):
-                                dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
                                 list_reason_bad_ticket.append((value[0], "KPI_I value was either lower than 0 or greater than 48",
                                 value[9], value[7], value[12], value[2], value[6], value[13],
                                 value[14], value[15], value[16], value[17], value[18]))
@@ -1415,7 +1420,7 @@ def detect_bad_tickets_quantitative_qualitative_yearly(dictionary_data_of_engine
                         try:
                             if int(value[16]) < 0 or int(value[16]) > 48:
                                 # print(engineer, "rule 12")
-                                dictionary_quality_engineers[engineer] = dictionary_quality_engineers[engineer] + 1
+                                dictionary_quality_engineers[index] = dictionary_quality_engineers[index] + 1
                                 list_reason_bad_ticket.append((value[0], "KPI_II value was either lower than 0 or greater than 48",
                                 value[9], value[7], value[12], value[2], value[6], value[13],
                                 value[14], value[15], value[16], value[17], value[18]))
@@ -1457,6 +1462,8 @@ def generic_count(complete_data,field_to_count,category,initial_date,ending_date
         index_in_element_list = 3
     elif field_to_count == "Reason_for_Creating":
         index_in_element_list = 10
+    elif field_to_count == "Category":
+        index_in_element_list = 2
     else:
         index_in_element_list = 0
 
@@ -1470,56 +1477,49 @@ def generic_count(complete_data,field_to_count,category,initial_date,ending_date
             counter += 1
     return counter
 
+
 def generic_count_bidimensional(complete_data, beginning_date, ending_date, x_axis, x_category, y_axis, y_category):
     # Extract the year, month, day for the beginning and ending dates
     counter = 0
 
     #define the element from the list, so you can retrieve the count of the category you are searching
     if x_axis == "issue status":
-        x_index = 19
-    elif x_axis == "technology":
-        x_index = 6
-    elif x_axis  == "triage category":
-        x_index = 13
-    elif x_axis  == "triage subcategory":
-        x_index = 14
-    elif x_axis  == "region":
-        x_index = 4
-    elif x_axis  == "problem category":
-        x_index = 7
+        x_index = 12
+    elif x_axis == "problem category":
+        x_index = 3
+    elif x_axis  == "affected devices":
+        x_index = 8
+    elif x_axis  == "category":
+        x_index = 2
     elif x_axis  == "reason for creating":
-        x_index = 17
+        x_index = 10
     elif x_axis  == "vendor":
-        x_index = 5
+        x_index = 1
     elif x_axis  == "priority":
-        x_index = 22
+        x_index = 14
     else:
         x_index = 0
 
     if y_axis == "issue status":
-        y_index = 19
-    elif y_axis == "technology":
-        y_index = 6
-    elif y_axis == "triage category":
-        y_index = 13
-    elif y_axis == "triage subcategory":
-        y_index = 14
-    elif y_axis == "region":
-        y_index = 4
+        y_index = 12
     elif y_axis == "problem category":
-        y_index = 7
-    elif y_axis == "reason for creating":
-        y_index = 17
-    elif y_axis == "vendor":
-        y_index = 5
-    elif y_axis == "priority":
-        y_index = 22
+        y_index = 3
+    elif y_axis  == "affected devices":
+        y_index = 8
+    elif y_axis  == "category":
+        y_index = 2
+    elif y_axis  == "reason for creating":
+        y_index = 10
+    elif y_axis  == "vendor":
+        y_index = 1
+    elif y_axis  == "priority":
+        y_index = 14
     else:
         y_index = 0
 
     for value in complete_data:
         if value[x_index] == x_category and value[y_index] == y_category and dateutil.parser.parse(
-        value[12]) >= beginning_date and dateutil.parser.parse(value[12]) < ending_date:
+        value[7]) >= beginning_date and dateutil.parser.parse(value[7]) < ending_date:
             counter += 1
     return counter
 
@@ -2052,6 +2052,13 @@ def get_fields_affected_devices():
     for affected_device in querySet:
         list_of_affected_devices.append(affected_device.affected_device_category)
     return list_of_affected_devices
+
+def get_fields_category():
+    querySet = SecurityAuditCategory.objects.all()
+    list_of_categories = []
+    for category in querySet:
+        list_of_categories.append(category.category)
+    return list_of_categories
 
 #this works for daily and weekly graphs
 def get_current_engineers(dictionary_of_rows):
