@@ -62,10 +62,12 @@ class DropDownMonthlyBidimensionalMenuFormSecurityAudit(forms.Form):
                  "12", 'December')
     list_of_categories = ("issue status","Issue Status"),("problem category","Problem Category"),\
                          ("reason for creating","Reason for Creating"), ("category","Category"), \
-                         ("affected devices","Affected Devices"), ("vendor", "Vendor"), ("priority", "Priority")
+                         ("affected devices","Affected Devices"), ("vendor", "Vendor"), ("priority", "Priority"), \
+                         ("engineer", "Security Engineer")
     list_of_categories_y = ("issue status","Issue Status"),("problem category","Problem Category"),\
                            ("reason for creating","Reason for Creating"),("category","Category"), \
-                           ("affected devices", "Affected Devices"), ("vendor", "Vendor"), ("priority","Priority")
+                           ("affected devices", "Affected Devices"), ("vendor", "Vendor"), ("priority","Priority"), \
+                           ("engineer", "Security Engineer")
 
     x_axis = forms.ChoiceField(choices=[x for x in list_of_categories], initial=list_of_categories[0])
     y_axis = forms.ChoiceField(choices=[y for y in list_of_categories_y], initial=list_of_categories_y[1])

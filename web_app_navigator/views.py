@@ -767,6 +767,12 @@ def tickets_bidimensional_analysis_monthly(request):
         elif x_axis == "vendor":
             x_categories_list = get_fields_vendors()
 
+        elif x_axis == "engineer":
+            x_categories_list = get_all_engineers()
+
+        else:
+            x_categories_list = ""
+
         # y retrieval values
         if y_axis == "issue status":
             y_categories_list = get_fields_ticket_status()
@@ -783,11 +789,17 @@ def tickets_bidimensional_analysis_monthly(request):
         elif y_axis == "affected devices":
             y_categories_list = get_fields_affected_devices()
 
-        elif x_axis == "category":
-            x_categories_list = get_fields_category()
+        elif y_axis == "category":
+            y_categories_list = get_fields_category()
 
         elif y_axis == "vendor":
             y_categories_list = get_fields_vendors()
+
+        elif y_axis == "engineer":
+            y_categories_list = get_all_engineers()
+
+        else:
+            y_categories_list = ""
 
         for value in y_categories_list:
             main_dictionary[value] = main_dictionary.get(value, [])
@@ -1151,6 +1163,12 @@ def tickets_bidimensional_analysis_yearly(request):
         elif x_axis == "vendor":
             x_categories_list = get_fields_vendors()
 
+        elif x_axis == "engineer":
+            x_categories_list = get_all_engineers()
+
+        else:
+            x_categories_list = ""
+
         # y retrieval values
         if y_axis == "issue status":
             y_categories_list = get_fields_ticket_status()
@@ -1167,11 +1185,18 @@ def tickets_bidimensional_analysis_yearly(request):
         elif y_axis == "affected devices":
             y_categories_list = get_fields_affected_devices()
 
-        elif x_axis == "category":
-            x_categories_list = get_fields_category()
+        elif y_axis == "category":
+            y_categories_list = get_fields_category()
 
         elif y_axis == "vendor":
             y_categories_list = get_fields_vendors()
+
+        elif y_axis == "engineer":
+            y_categories_list = get_all_engineers()
+
+        else:
+            y_categories_list = ""
+
 
         for value in y_categories_list:
             main_dictionary[value] = main_dictionary.get(value, [])
@@ -1464,6 +1489,8 @@ def generic_count(complete_data,field_to_count,category,initial_date,ending_date
         index_in_element_list = 10
     elif field_to_count == "Category":
         index_in_element_list = 2
+    elif field_to_count == "Security_Engineer":
+        index_in_element_list = 9
     else:
         index_in_element_list = 0
 
@@ -1497,6 +1524,8 @@ def generic_count_bidimensional(complete_data, beginning_date, ending_date, x_ax
         x_index = 1
     elif x_axis  == "priority":
         x_index = 14
+    elif x_axis == "engineer":
+        x_index = 9
     else:
         x_index = 0
 
@@ -1514,6 +1543,8 @@ def generic_count_bidimensional(complete_data, beginning_date, ending_date, x_ax
         y_index = 1
     elif y_axis  == "priority":
         y_index = 14
+    elif y_axis == "engineer":
+        y_index = 9
     else:
         y_index = 0
 
