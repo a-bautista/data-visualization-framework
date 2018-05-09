@@ -143,7 +143,7 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
 
  ############################ Daily #####################################
 
-# needs debugging
+# working correctly
 def tickets_quantitative_qualitative_daily(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/country_A/no_results/daily/quantitative_qualitative.html'
@@ -223,30 +223,26 @@ def tickets_quantitative_qualitative_daily(request):
         for key, value in sorted(quality_results.items()):
             sorted_dictionary_quality_engineers[key] = value
 
-        keys = ""
-        values = ""
-        quality = ""
-
         # separate keys and values for the quantitative measure
+        '''If the dictionary with the quant values is empty then the quality values dictionary is also empty,thus,
+         it means that no engineers work on that specific day.'''
         if len(sorted_dict_engineer_count_lists_of_lists) !=0:
             keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
-            #print("quant values: ",keys, values)
             # patch to avoid the empty dictionaries when no data is found
             # separate keys and values for the qualitative measure
             engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
-            #print("quality values: ",engineer_keys, quality)
-            incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
         else:
-            #get all the engineers
-            incident_value = []
-
+            keys = ""
+            values = ""
+            quality = ""
 
         '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
-        If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
-        #if len(dictionary_values_to_display_table) != 0:
-        #    incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
-        #else:
-        #    incident_value = []
+        If the dictionary with the values of the table is empty which means that no bad tickets were detected then, 
+        display an empty list.'''
+        if len(dictionary_values_to_display_table) != 0:
+            incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
+        else:
+            incident_value = []
 
         data = {
             "label_engineers": keys,
@@ -265,7 +261,7 @@ def tickets_quantitative_qualitative_daily(request):
 
  ####################### Weekly ################################
 
-# needs debugging
+# working correctly
 def tickets_quantitative_qualitative_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/quantitative_qualitative.html'
@@ -345,11 +341,17 @@ def tickets_quantitative_qualitative_weekly(request):
             sorted_dictionary_quality_engineers[key] = value
 
         # separate keys and values for the quantitative measure
-        keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
-
-        # patch to avoid the empty dictionaries when no data is found
-        # separate keys and values for the qualitative measure
-        engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
+        '''If the dictionary with the quant values is empty then the quality values dictionary is also empty,thus,
+         it means that no engineers work on that specific day.'''
+        if len(sorted_dict_engineer_count_lists_of_lists) != 0:
+            keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
+            # patch to avoid the empty dictionaries when no data is found
+            # separate keys and values for the qualitative measure
+            engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
+        else:
+            engineer_keys = ""
+            values = ""
+            quality = ""
 
         '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
         If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
