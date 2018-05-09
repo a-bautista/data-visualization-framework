@@ -2,13 +2,15 @@ from django.shortcuts import render
 from .forms import DropDownMenuForm, DropDownMenuFormQuantitativeQualitativeDaily, DropDownMonthlyMenuForm, \
     DropDownYearlyMenuFormSecurityAudit, DropDownMonthlyBidimensionalMenuFormSecurityAudit, DropDownYearlyBidimensionalMenuFormSecurityAudit,\
     DropDownMenuFormQuantitativeQualitativeYearly
-
 from datetime import date, datetime, timedelta
 from .models import SecurityAuditEngineer, SecurityAuditStatusTicket, SecurityAuditAffectedDevicesCategory, \
     SecurityAuditReasonForCreatingTicket, SecurityAuditProblemCategory, SecurityAuditVendor, SecurityAuditPriorityTicket,\
     SecurityAuditCategory
+from rest_framework.views import APIView
+from rest_framework.response import Response
 import json, dateutil.parser, calendar, psycopg2, operator
 import numpy as np, pandas as pd
+
 
 
 ###################### declare the html views ###########################
@@ -17,6 +19,124 @@ def index(request):
     return render(request, 'web_app_navigator/header_home.html')
 
 ################################ API views ##########################
+
+class tickets_quantitative_qualitative_daily_ajax(APIView):
+
+    def get(self, request, format=None):
+        dict_lists_of_lists_data_engineers, initial_date, ending_date, year, month, day = get_rows_of_data_daily(
+            request)
+
+        field_to_count = "Issue_Status"
+
+        # get list of active engineers
+        list_of_engineers = get_current_engineers(dict_lists_of_lists_data_engineers)
+
+        quantitative_value = get_quantitative_value()
+
+        current_market = get_market()
+
+        # create dictionary to store the count of engineers
+        dict_engineer_count_lists_of_lists = {}
+
+        # sorted quant dictionary values
+        sorted_dict_engineer_count_lists_of_lists = {}
+
+        # create dictionary to store the quality of engineers
+        dictionary_quality_engineers = {}
+
+        # sorted quality dictionary values
+        sorted_dictionary_quality_engineers = {}
+
+        # dictionary that stores the total amount of tickets per engineer by week needed for the quality measure
+        total_amount_tickets_per_engineer = {}
+
+        initial_date, ending_date = convert_date_to_datetime(initial_date, ending_date)
+
+        list_of_categories = get_fields_ticket_status()
+
+        # populate dictionary of count of tickets and quality with those enginers that have data in their lists
+        for engineer in list_of_engineers:
+            dict_engineer_count_lists_of_lists[engineer] = dict_engineer_count_lists_of_lists.get(engineer, 0)
+            total_amount_tickets_per_engineer[engineer] = total_amount_tickets_per_engineer.get(engineer, 0)
+            dictionary_quality_engineers[engineer] = dictionary_quality_engineers.get(engineer, 0)
+
+        ##################### Quantitative measure ##################################
+        for index_category, value_category in enumerate(list_of_categories):
+            for index_engineer, value_engineer in enumerate(dict_lists_of_lists_data_engineers):
+                # if the dictionary contains data
+                if dict_lists_of_lists_data_engineers[value_engineer]:
+                    # I am counting the number of times a ticket with any status except Queued appears for each engineer - quant values
+                    dict_engineer_count_lists_of_lists[value_engineer] = int(
+                        dict_engineer_count_lists_of_lists[value_engineer] + \
+                        generic_count(dict_lists_of_lists_data_engineers[value_engineer], field_to_count,
+                                      value_category, initial_date, ending_date) * quantitative_value)
+
+                    # I am counting the number of times an ticket with any status except Queued appears for each engineer - measure for the quality
+                    total_amount_tickets_per_engineer[value_engineer] = total_amount_tickets_per_engineer[
+                                                                            value_engineer] + \
+                                                                        generic_count(
+                                                                            dict_lists_of_lists_data_engineers[
+                                                                                value_engineer], field_to_count,
+                                                                            value_category,
+                                                                            initial_date, ending_date)
+
+        ##################### Quality measure ############################################
+        # get the bad tickets and the count of bad tickets that were detected
+        dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_quantitative_qualitative(
+            dict_lists_of_lists_data_engineers, dictionary_quality_engineers)
+
+        # print("total amount of tickets: ", total_amount_tickets_per_engineer)
+        quality_results = {key: int(
+            ((total_amount_tickets_per_engineer[key] - dictionary_quality_engineers.get(key, 0)) * 100) /
+            total_amount_tickets_per_engineer[key]) for key in dictionary_quality_engineers.keys()}
+
+        # dictionaries synchronization of quant and qualitative values - necessary for keys and values to be in the same order  #
+
+        for key, value in sorted(dict_engineer_count_lists_of_lists.items()):
+            sorted_dict_engineer_count_lists_of_lists[key] = value
+
+        for key, value in sorted(quality_results.items()):
+            sorted_dictionary_quality_engineers[key] = value
+
+        keys = ""
+        values = ""
+        quality = ""
+
+        # separate keys and values for the quantitative measure
+        if len(sorted_dict_engineer_count_lists_of_lists) != 0:
+            keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
+            # print("quant values: ",keys, values)
+            # patch to avoid the empty dictionaries when no data is found
+            # separate keys and values for the qualitative measure
+            engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
+            # print("quality values: ",engineer_keys, quality)
+            incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
+        else:
+            # get all the engineers
+            incident_value = []
+
+        '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
+        If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
+        # if len(dictionary_values_to_display_table) != 0:
+        #    incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
+        # else:
+        #    incident_value = []
+
+        data = {
+            "label_engineers": keys,
+            "quantitative": values,
+            "quality": quality,
+            "year": year,
+            "month": month,
+            "day": day,
+            "table_values": incident_value,
+            "market": current_market,
+        }
+
+        # convert this to JSON and then to a dictionary
+        my_data = {'my_data': json.dumps(data)}
+        return Response(my_data)
+
 
 
 #################### Main views in Security  #################################
@@ -103,21 +223,30 @@ def tickets_quantitative_qualitative_daily(request):
         for key, value in sorted(quality_results.items()):
             sorted_dictionary_quality_engineers[key] = value
 
+        keys = ""
+        values = ""
+        quality = ""
+
         # separate keys and values for the quantitative measure
-        keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
-        #print("quant values: ",keys, values)
-        # patch to avoid the empty dictionaries when no data is found
-        # separate keys and values for the qualitative measure
-        engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
-        #print("quality values: ",engineer_keys, quality)
+        if len(sorted_dict_engineer_count_lists_of_lists) !=0:
+            keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
+            #print("quant values: ",keys, values)
+            # patch to avoid the empty dictionaries when no data is found
+            # separate keys and values for the qualitative measure
+            engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
+            #print("quality values: ",engineer_keys, quality)
+            incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
+        else:
+            #get all the engineers
+            incident_value = []
 
 
         '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
         If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
-        if len(dictionary_values_to_display_table) != 0:
-            incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
-        else:
-            incident_value = []
+        #if len(dictionary_values_to_display_table) != 0:
+        #    incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
+        #else:
+        #    incident_value = []
 
         data = {
             "label_engineers": keys,
