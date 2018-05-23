@@ -55,6 +55,18 @@
 			<ul class="nav navbar-nav">
 				<li class="active"><a href="/"><h4 style="color:#fff">Main Dashboard</h4></a></li>
 			</ul>
+			{% if user.is_authenticated %}
+				<li>
+					<form class="logout-link" action="/accounts/logout/" method="POST">
+							{% csrf_token %}
+						<button type="submit">Logout</button>
+					</form>
+        		</li>
+				{% else %}
+            		<li><a href="/accounts/login/">Login</a></li>
+            		<li><a href="/accounts/signup/">Sign up</a></li>
+        		{% endif %}
+			</ul>
 			<!--add more options in the future
 			<ul class="nav navbar-nav">
 				<li class="active"><a href="/"><h4 style="color:#fff">Export</h4></a></li>
@@ -204,6 +216,7 @@
 	    {% endblock %}
 </script>
 
+
 <script type="text/javascript">
 var acc = document.getElementsByClassName("accordion");
 var i;
@@ -220,7 +233,7 @@ for (i = 0; i < acc.length; i++) {
     }
 }
 </script>
-
+<!--
 <script>
 	var endpoint = 'tickets_quantitative_qualitative_daily_ajax' //This endpoint contains the API View.
 	var days_of_data = []
@@ -243,5 +256,5 @@ for (i = 0; i < acc.length; i++) {
 		}
 	})
 
-</script>
+</script>-->
 </html>

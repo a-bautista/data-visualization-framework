@@ -10,11 +10,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import json, dateutil.parser, calendar, psycopg2, operator
 import numpy as np, pandas as pd
+from django.contrib.auth.decorators import login_required
 
 
 
 ###################### declare the html views ###########################
 
+@login_required(login_url="/accounts/login/")
 def index(request):
     return render(request, 'web_app_navigator/header_home.html')
 
@@ -144,6 +146,7 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
  ############################ Daily #####################################
 
 # working correctly
+@login_required(login_url="/accounts/login/")
 def tickets_quantitative_qualitative_daily(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/country_A/no_results/daily/quantitative_qualitative.html'
@@ -232,7 +235,7 @@ def tickets_quantitative_qualitative_daily(request):
             # separate keys and values for the qualitative measure
             engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
         else:
-            keys = ""
+            engineer_keys = ""
             values = ""
             quality = ""
 
@@ -245,7 +248,7 @@ def tickets_quantitative_qualitative_daily(request):
             incident_value = []
 
         data = {
-            "label_engineers": keys,
+            "label_engineers": engineer_keys,
             "quantitative": values,
             "quality": quality,
             "year": year,
@@ -262,6 +265,7 @@ def tickets_quantitative_qualitative_daily(request):
  ####################### Weekly ################################
 
 # working correctly
+@login_required(login_url="/accounts/login/")
 def tickets_quantitative_qualitative_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/quantitative_qualitative.html'
@@ -374,6 +378,7 @@ def tickets_quantitative_qualitative_weekly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_counting_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/tickets_counting_weekly.html'
@@ -440,6 +445,7 @@ def tickets_counting_weekly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_status_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/tickets_status.html'
@@ -499,6 +505,7 @@ def tickets_status_weekly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_affected_devices_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/tickets_affected_devices.html'
@@ -556,6 +563,7 @@ def tickets_affected_devices_weekly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_problem_category_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/tickets_problem_category.html'
@@ -614,6 +622,7 @@ def tickets_problem_category_weekly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_reason_for_creating_weekly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/weekly/tickets_reason_for_creating.html'
@@ -678,6 +687,7 @@ def tickets_reason_for_creating_weekly(request):
 
 ####################### Monthly ################################
 
+@login_required(login_url="/accounts/login/")
 def tickets_affected_devices_monthly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/monthly/tickets_affected_devices.html'
@@ -736,6 +746,7 @@ def tickets_affected_devices_monthly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_problem_category_monthly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/monthly/tickets_problem_category.html'
@@ -795,6 +806,7 @@ def tickets_problem_category_monthly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_reason_for_creating_monthly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/monthly/tickets_reason_for_creating.html'
@@ -855,6 +867,7 @@ def tickets_reason_for_creating_monthly(request):
         return render(request, template_name, my_data)
 
 # needs debugging
+@login_required(login_url="/accounts/login/")
 def tickets_bidimensional_analysis_monthly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/monthly/tickets_bidimensional_analysis.html'
@@ -971,6 +984,7 @@ def tickets_bidimensional_analysis_monthly(request):
 
 ####################### Yearly ################################
 
+@login_required(login_url="/accounts/login/")
 def tickets_affected_devices_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/tickets_affected_devices.html'
@@ -1027,6 +1041,7 @@ def tickets_affected_devices_yearly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_problem_category_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/tickets_problem_category.html'
@@ -1087,6 +1102,7 @@ def tickets_problem_category_yearly(request):
         my_data = {'my_data': json.dumps(data)}
         return render(request, template_name, my_data)
 
+@login_required(login_url="/accounts/login/")
 def tickets_reason_for_creating_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/tickets_reason_for_creating.html'
@@ -1146,6 +1162,7 @@ def tickets_reason_for_creating_yearly(request):
         return render(request, template_name, my_data)
 
 # needs debugging
+@login_required(login_url="/accounts/login/")
 def tickets_quantitative_qualitative_per_engineer_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/quantitative_qualitative.html'
@@ -1251,6 +1268,7 @@ def tickets_quantitative_qualitative_per_engineer_yearly(request):
         return render(request, template_name, my_data)
 
 # needs debugging
+@login_required(login_url="/accounts/login/")
 def tickets_bidimensional_analysis_yearly(request):
     if request.method == "GET":
         template_name = 'web_app_navigator/Country_A/no_results/yearly/tickets_bidimensional_analysis.html'

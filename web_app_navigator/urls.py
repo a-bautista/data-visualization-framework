@@ -2,9 +2,11 @@ from django.conf.urls import url
 from . import views
 from .views import tickets_quantitative_qualitative_daily_ajax
 
+app_name = 'web_app_navigator'
 
 urlpatterns = [
     # ================================ Home =============================================
+
     url(r'^$', views.index, name='index'),  # render the header_home view
 
     url(r'tickets_quantitative_qualitative_daily_ajax$', tickets_quantitative_qualitative_daily_ajax.as_view()),
