@@ -1746,7 +1746,7 @@ def connection_database_postgresql(initial_date, end_date):
                              "KPI_IV": []
                              }
 
-    connection = psycopg2.connect(host = "localhost", database = "postgres", user = "postgres", password = "Ab152211@")
+    connection = psycopg2.connect(host = "localhost", database = "postgres", user = "postgres", password = "xxx")
 
     cursor = connection.cursor()
     # if we get the error failed to execute an empty string is because there is no data in the database, you need to execute
