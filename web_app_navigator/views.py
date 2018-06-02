@@ -84,12 +84,11 @@ class Tickets_per_week_ajax(APIView):
 
         return Response(data)
 
-'''
-class tickets_quantitative_qualitative_daily_ajax(APIView):
+
+class Tickets_quantitative_qualitative_weekly_ajax(APIView):
 
     def get(self, request, format=None):
-        dict_lists_of_lists_data_engineers, initial_date, ending_date, year, month, day = get_rows_of_data_daily(
-            request)
+        dict_lists_of_lists_data_engineers, initial_date, ending_date, year, week = get_rows_of_data_weekly_ajax(request)
 
         field_to_count = "Issue_Status"
 
@@ -97,8 +96,6 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
         list_of_engineers = get_current_engineers(dict_lists_of_lists_data_engineers)
 
         quantitative_value = get_quantitative_value()
-
-        current_market = get_market()
 
         # create dictionary to store the count of engineers
         dict_engineer_count_lists_of_lists = {}
@@ -119,7 +116,7 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
 
         list_of_categories = get_fields_ticket_status()
 
-        # populate dictionary of count of tickets and quality with those enginers that have data in their lists
+        # populate dictionary of count of tickets and quality with those engineers that have data in their lists
         for engineer in list_of_engineers:
             dict_engineer_count_lists_of_lists[engineer] = dict_engineer_count_lists_of_lists.get(engineer, 0)
             total_amount_tickets_per_engineer[engineer] = total_amount_tickets_per_engineer.get(engineer, 0)
@@ -142,15 +139,13 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
                                                                         generic_count(
                                                                             dict_lists_of_lists_data_engineers[
                                                                                 value_engineer], field_to_count,
-                                                                            value_category,
-                                                                            initial_date, ending_date)
+                                                                            value_category, initial_date, ending_date)
 
         ##################### Quality measure ############################################
         # get the bad tickets and the count of bad tickets that were detected
         dictionary_values_to_display_table, dictionary_quality_engineers = detect_bad_tickets_quantitative_qualitative(
             dict_lists_of_lists_data_engineers, dictionary_quality_engineers)
 
-        # print("total amount of tickets: ", total_amount_tickets_per_engineer)
         quality_results = {key: int(
             ((total_amount_tickets_per_engineer[key] - dictionary_quality_engineers.get(key, 0)) * 100) /
             total_amount_tickets_per_engineer[key]) for key in dictionary_quality_engineers.keys()}
@@ -163,44 +158,36 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
         for key, value in sorted(quality_results.items()):
             sorted_dictionary_quality_engineers[key] = value
 
-        keys = ""
-        values = ""
-        quality = ""
-
         # separate keys and values for the quantitative measure
+        '''If the dictionary with the quant values is empty then the quality values dictionary is also empty,thus,
+         it means that no engineers work on that specific day.'''
         if len(sorted_dict_engineer_count_lists_of_lists) != 0:
             keys, values = zip(*sorted_dict_engineer_count_lists_of_lists.items())
-            # print("quant values: ",keys, values)
             # patch to avoid the empty dictionaries when no data is found
             # separate keys and values for the qualitative measure
             engineer_keys, quality = verify_data_dictionary_no_sorted_charts(sorted_dictionary_quality_engineers)
-            # print("quality values: ",engineer_keys, quality)
+        else:
+            engineer_keys = ""
+            values = ""
+            quality = ""
+
+        '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
+        If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
+        if len(dictionary_values_to_display_table) != 0:
             incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
         else:
-            # get all the engineers
             incident_value = []
 
-        #Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
-        #If the dictionary is empty which means that no bad tickets were detected then, display an empty list.
-        # if len(dictionary_values_to_display_table) != 0:
-        #    incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
-        # else:
-        #    incident_value = []
-
         data = {
-            "label_engineers": keys,
+            "label_engineers": engineer_keys,
             "quantitative": values,
             "quality": quality,
             "year": year,
-            "month": month,
-            "day": day,
+            "week": week,
             "table_values": incident_value,
-            "market": current_market,
         }
 
-        # convert this to JSON and then to a dictionary
-        my_data = {'my_data': json.dumps(data)}
-        return Response(my_data)'''
+        return Response(data)
 
 
 

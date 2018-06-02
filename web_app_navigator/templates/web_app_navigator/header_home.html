@@ -191,6 +191,7 @@
 			<div class='container-fluid'>
 			<br><br>
 				<div><canvas id="graph" width="700" height="250"></canvas></div>
+				<div><canvas id="quantitative_qualitative_tickets" width="700" height="200"></canvas></div>
 			</div>
 		  </div>
 		</div><!-- end of row -->
@@ -243,7 +244,6 @@ for (i = 0; i < acc.length; i++) {
 		dataType: 'json',
 		success: function(data){
 				$.each(data,function(key,val){
-					console.log(key,val)
 					if (key == "labels"){
 						labels = val
 					}else if (key == "label_values"){
@@ -258,9 +258,41 @@ for (i = 0; i < acc.length; i++) {
 		}
 	})
 
+</script>
+
+<script>
+	var endpoint = 'tickets_quantitative_qualitative_weekly_ajax' //This endpoint contains the API View.
+	var label_engineers = []
+	var quantitative    = []
+	var quality         = []
+
+	$.ajax({
+		method: "GET",
+		url: endpoint,
+		dataType: 'json',
+		success: function(data){
+				console.log(data)
+				$.each(data,function(key,val){
+					if (key == "label_engineers"){
+						label_engineers = val
+					}else if (key == "quantitative"){
+						quantitative = val
+					}else if (key == "quality"){
+						quality = val
+					}
+				});
+				setChartQuantitativeQualitativeWeeklyGraph()
+		},
+		  error: function(jqXHR, textStatus, errorThrown) {
+          console.log(JSON.stringify(jqXHR));
+          console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+		}
+	})
+
 
 
 </script>
+
 
 <script>
 	function setChartWeeklyGraph()
@@ -373,5 +405,146 @@ for (i = 0; i < acc.length; i++) {
 	}// end of function
 
 </script>
+
+
+<script>
+	function setChartQuantitativeQualitativeWeeklyGraph()
+	{
+		var ctx_quantitative_qualitative       = document.getElementById("quantitative_qualitative_tickets")
+		var tickets_per_day = new Chart(ctx_quantitative_qualitative, {
+
+			type:'bar',
+			data: {
+				labels: label_engineers,
+				datasets :
+					[{
+						label: 'Quantitative',
+						data:   quantitative,
+
+					backgroundColor: [
+						'rgba(237, 98, 18, 0.94)',
+						'rgba(54, 162, 235, 0.9)',
+						'rgba(255, 206, 86, 0.9)',
+						'rgba(75, 192, 192, 0.9)',
+						'rgba(153, 102, 255, 0.9)',
+						'rgba(45, 154, 35, 0.9)',
+						'rgba(154, 39, 35, 0.9)',
+						'rgba(182, 53, 7, 0.9)',
+						'rgba(179, 231, 8, 0.9)',
+						'rgba(8, 8, 231, 0.9)',
+						'rgba(231, 8, 157, 0.9)',
+						'rgba(8, 231, 135, 0.9)',
+						'rgba(0, 0, 0, 0.9)',
+						'rgba(155, 35, 150, 0.9)',
+						'rgba(186, 165, 9, 0.9)',
+						'rgba(201, 74, 28, 0.9)',
+						'rgba(201, 28, 97, 0.9)',
+						'rgba(28, 201, 51, 0.9)',
+						'rgba(155, 135, 63, 0.9)',
+						'rgba(193, 21, 9, 0.9)',
+						'rgba(123, 51, 98, 0.9)',
+						'rgba(223, 1, 117, 0.9)'
+					],
+
+						borderColor: '#000',
+						borderWidth: 1,
+						hoverBorderWidth: 3,
+						hoverBorderColor: '#000'
+					}
+					,{
+						label: 'Quality',
+						data:   quality,
+
+						type: 'line',
+						fill: false,
+						borderColor: '#EC932F',
+						backgroundColor: '#EC932F',
+						pointBorderColor: '#000',
+						pointBackgroundColor: '#000',
+						pointHoverBackgroundColor: '#fff',
+						pointHoverBorderColor: '#fff',
+					}]
+				},
+
+				options:
+				{
+					responsive: true,
+					tooltipTemplate: "<%= value %>",
+					tooltipFillColor: "rgba(0,0,0,0)",
+					tooltipFontColor: "#444",
+					tooltipEvents: [],
+					tooltipCaretSize: 0,
+					scales: {
+						yAxes: [{
+							ticks: {
+								beginAtZero: true,
+								fontColor: '#fff'
+								},
+							gridLines: {
+								display: false,
+								color:'#fff'
+								},
+							scaleLabel: {
+								display: true,
+								fontSize: 20,
+								labelString: 'Quantitative Values',
+								fontColor: '#fff'
+								}
+							}],
+						xAxes: [{
+							ticks: {
+								fontColor: '#fff',
+								fontSize: 7
+							},
+							gridLines: {
+								display:false,
+								color:'#fff'
+							},
+							scaleLabel: {
+								display: false,
+								fontSize: 30,
+								labelString: 'Current days',
+								fontColor: '#fff'
+							}
+						}]
+					},//end of scales
+
+					plugins: {
+							datalabels: {
+							display: true,
+							align: 'center',
+							anchor: 'center',
+							color: '#fff'
+							}
+					},
+
+					title: {
+						display: true,
+						text: 'Weekly Quantitative vs Qualitative',
+						fontSize: 30,
+						padding: 50,
+						fontColor: '#fff'
+						},
+					legend: {
+						position: 'right',
+						display: false,
+						labels: {
+							fontColor: '#fff'
+							}
+						},
+					layout: {
+						padding: {
+							left: 50,
+							right: 0,
+							bottom: 0,
+							top: 0
+						}
+					},
+				}// end of options
+		}); //end of variable
+	}//end of function
+
+</script>
+
 
 </html>

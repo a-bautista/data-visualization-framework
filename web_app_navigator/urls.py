@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-from .views import Tickets_per_week_ajax
+from .views import Tickets_per_week_ajax, Tickets_quantitative_qualitative_weekly_ajax
 
 app_name = 'web_app_navigator'
 
@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),  # render the header_home view
 
     url(r'tickets_per_week_ajax$', Tickets_per_week_ajax.as_view()), #render as a class based view
+    url(r'tickets_quantitative_qualitative_weekly_ajax$', Tickets_quantitative_qualitative_weekly_ajax.as_view()),
 
     # ================================ Security =============================================
 
