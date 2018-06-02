@@ -22,6 +22,69 @@ def index(request):
 
 ################################ API views ##########################
 
+class Tickets_per_week_ajax(APIView):
+
+    def get(self, request, format=None):
+
+        #current_market = get_market()
+        dict_lists_of_lists_data_engineers, initial_date, ending_date, year, week = get_rows_of_data_weekly_ajax(request)
+        # convert the dates to datetime objects
+        initial_date, ending_date = convert_date_to_datetime(initial_date, ending_date)
+        list_of_categories = get_fields_ticket_status()
+        dictionary_count = {}
+        temp_dictionary = {}
+
+        # cleaning process
+        list_of_engineers = remove_zero_values_in_dictionary_ca(dict_lists_of_lists_data_engineers)
+
+        # show the results in the table
+        values_to_display_table = get_values_table(list_of_engineers, dict_lists_of_lists_data_engineers,
+                                                   initial_date, ending_date)
+        list_of_days = get_label_days(initial_date)
+
+        # variables that change
+        field_to_count = "Issue_Status"
+
+        # populate dictionary of status for creating with label and value of 0
+        for category in list_of_categories:
+            dictionary_count[category] = dictionary_count.get(category, [])
+
+        # get the count of tickets per category so you can display them in graphs
+        for index_category, value_category in enumerate(list_of_categories):
+            for day in range(len(list_of_days)):
+                temp_list = []
+                for index_engineer, value_engineer in enumerate(dict_lists_of_lists_data_engineers):
+                    temp_list.append(generic_count(dict_lists_of_lists_data_engineers[value_engineer],
+                                                   field_to_count, value_category, initial_date + timedelta(days=day),
+                                                   initial_date + timedelta(days=day + 1)))
+                dictionary_count[value_category].append(int(np.sum(temp_list)))
+
+        # this line contains all the tickets of each engineer by category but some of these engineers have 0 tickets for all categories
+        # no need to patch this line of code because there is data on the legend chart which is the days of the week
+        legend_of_chart, values = zip(*dictionary_count.items())
+
+        # transpose the list with tickets of each engineer
+        transpose_list = list(map(list, zip(*values)))
+
+        # store the sum of all the tickets for each day
+        for index, value in enumerate(list_of_days):
+            temp_dictionary[index] = int(np.sum(transpose_list[index]))
+
+        # no need to patch this line of code with verify_data_dictionary() because there is data on the days variable
+        days, values_in_days = zip(*temp_dictionary.items())
+
+        data = {
+            "labels": list_of_days,
+            "label_values": values_in_days,
+            "year": year,
+            "week": week,
+        }
+        #avoid using this in Ajax requests
+        #my_data = {'my_data': json.dumps(data)}
+
+        return Response(data)
+
+'''
 class tickets_quantitative_qualitative_daily_ajax(APIView):
 
     def get(self, request, format=None):
@@ -117,8 +180,8 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
             # get all the engineers
             incident_value = []
 
-        '''Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
-        If the dictionary is empty which means that no bad tickets were detected then, display an empty list.'''
+        #Separate the incident id and the values that are contained in the dictionary which are the bad tickets.
+        #If the dictionary is empty which means that no bad tickets were detected then, display an empty list.
         # if len(dictionary_values_to_display_table) != 0:
         #    incident_id, incident_value = zip(*dictionary_values_to_display_table.items())
         # else:
@@ -137,7 +200,7 @@ class tickets_quantitative_qualitative_daily_ajax(APIView):
 
         # convert this to JSON and then to a dictionary
         my_data = {'my_data': json.dumps(data)}
-        return Response(my_data)
+        return Response(my_data)'''
 
 
 
@@ -1746,7 +1809,7 @@ def connection_database_postgresql(initial_date, end_date):
                              "KPI_IV": []
                              }
 
-    connection = psycopg2.connect(host = "localhost", database = "postgres", user = "postgres", password = "xxx")
+    connection = psycopg2.connect(host = "localhost", database = "postgres", user = "postgres", password = "Ab152211@")
 
     cursor = connection.cursor()
     # if we get the error failed to execute an empty string is because there is no data in the database, you need to execute
@@ -1863,6 +1926,37 @@ def get_rows_of_data_monthly(request):
     dict_engineers_lists_of_lists_data = clear_engineer_names(dataframe_filtered_data)
 
     return dict_engineers_lists_of_lists_data, initial_date, ending_date, year, month
+
+def get_rows_of_data_weekly_ajax(request):
+    year = date.today().year
+    week = date.today().isocalendar()[1]
+
+    initial_date = get_start_end_date(year, week)[0]  # index 0 contains the initial date
+    # ending_date  = get_start_end_date_colombia(year, week)[1]  # index 0 contains the initial date
+
+    beginning_year = str(initial_date).split("-")[0]
+    beginning_month = str(initial_date).split("-")[1]
+    beginning_day = str(initial_date).split("-")[2]
+
+    # Default time values
+    beginning_hour = 00
+    beginning_minute = 00
+    beginning_second = 00
+
+    # 1 week of data equal to 7
+    ending_date = initial_date + timedelta(days=7)
+
+    # filtered data for the SQL DB
+    beginning_datetime_date_format = datetime(int(beginning_year), int(beginning_month), int(beginning_day),
+                                              beginning_hour, beginning_minute, beginning_second)
+    ending_datetime_date_format = beginning_datetime_date_format + timedelta(days=7)
+
+    # Retrieval to the SQL database
+    dataframe_filtered_data = connection_database_postgresql(beginning_datetime_date_format,
+                                                             ending_datetime_date_format)
+
+    dict_engineers_lists_of_lists_data = clear_engineer_names(dataframe_filtered_data)
+    return dict_engineers_lists_of_lists_data, initial_date, ending_date, year, week
 
 #working correctly
 def get_rows_of_data_weekly(request):

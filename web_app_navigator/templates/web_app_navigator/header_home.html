@@ -190,12 +190,12 @@
 		  <div class="col-sm-10">
 			<div class='container-fluid'>
 			<br><br>
-			   {% block content %}
-			   {% endblock %}
+				<div><canvas id="graph" width="700" height="250"></canvas></div>
 			</div>
 		  </div>
 		</div><!-- end of row -->
 	</div><!-- end of the container fluid -->
+
 </body>
 
 <footer>
@@ -211,10 +211,7 @@
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 
 <!--------------------- Script that is used in the results templates ------------------------------>
-<script>
-		{% block jquery %}
-	    {% endblock %}
-</script>
+
 
 
 <script type="text/javascript">
@@ -233,22 +230,27 @@ for (i = 0; i < acc.length; i++) {
     }
 }
 </script>
-<!--
+
+
 <script>
-	var endpoint = 'tickets_quantitative_qualitative_daily_ajax' //This endpoint contains the API View.
-	var days_of_data = []
-	var label_number_days = []
+	var endpoint = 'tickets_per_week_ajax' //This endpoint contains the API View.
+	var labels = []
+	var label_values = []
 
 	$.ajax({
 		method: "GET",
 		url: endpoint,
 		dataType: 'json',
 		success: function(data){
-		    console.log(data)
-			label_number_days = data.label_number_days
-			days_of_data = data.days_of_data
-			setChart()
-
+				$.each(data,function(key,val){
+					console.log(key,val)
+					if (key == "labels"){
+						labels = val
+					}else if (key == "label_values"){
+						label_values = val
+					}
+				});
+				setChartWeeklyGraph()
 		},
 		  error: function(jqXHR, textStatus, errorThrown) {
           console.log(JSON.stringify(jqXHR));
@@ -256,5 +258,120 @@ for (i = 0; i < acc.length; i++) {
 		}
 	})
 
-</script>-->
+
+
+</script>
+
+<script>
+	function setChartWeeklyGraph()
+	{
+		var ctx_graph       = document.getElementById("graph")
+		var display_graph = new Chart(ctx_graph, {
+					type:'bar',
+					data: {
+						labels: labels,
+						datasets :
+							[{
+								label: 'Tickets',
+								data: label_values,
+
+							backgroundColor: [
+								'rgba(237, 98, 18, 0.9)',
+								'rgba(54, 162, 235, 0.9)',
+								'rgba(255, 206, 86, 0.9)',
+								'rgba(75, 192, 192, 0.9)',
+								'rgba(153, 102, 255, 0.9)',
+								'rgba(45, 154, 35, 0.9)',
+								'rgba(154, 39, 35, 0.9)'
+								],
+
+							borderColor: '#000',
+							borderWidth: 2,
+							hoverBorderWidth: 3,
+							hoverBorderColor: '#000'
+						}]
+						},
+						options : {
+							responsive: true,
+							tooltipTemplate: "<%= value %>",
+							tooltipFillColor: "rgba(0,0,0,0)",
+							tooltipFontColor: "#444",
+							tooltipEvents: [],
+							tooltipCaretSize: 0,
+
+							scales: {
+								yAxes: [{
+									ticks: {
+										beginAtZero: true,
+										fontColor: '#fff',
+										fontSize: 10
+									   },
+									gridLines: {
+										display: false,
+										color:'#fff'
+										},
+									scaleLabel: {
+										display: true,
+										fontSize: 15,
+										labelString: 'Number of tickets',
+										fontColor: '#fff'
+										}
+									}],
+								xAxes: [{
+									ticks: {
+										fontColor: '#fff',
+										fontSize: 8
+										},
+									gridLines: {
+										display:false,
+										color:'#fff'
+										},
+									scaleLabel: {
+										display: false,
+										fontSize: 30,
+										labelString: 'Current days',
+										fontColor: '#fff'
+										}
+									}]
+								}, //end of scales
+
+							plugins: {
+								datalabels: {
+									  display: true,
+									  align: 'center',
+									  anchor: 'center',
+									  color: '#fff'
+									 }
+								  },
+							title: {
+								display: true,
+								text: 'Tickets in the Current Week',
+								fontSize: 30,
+								padding: 50,
+								fontColor: '#fff'
+								},
+
+								legend: {
+									position: 'right',
+									display: false,
+
+								labels: {
+									fontColor: '#fff'
+									}
+								},
+
+							layout: {
+								padding: {
+									left: 50,
+									right: 0,
+									bottom: 0,
+									top: 0
+								}
+							},
+					}// end of options
+				}); // end of display_graph variable
+	}// end of function
+
+</script>
+
 </html>
