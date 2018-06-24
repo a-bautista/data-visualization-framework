@@ -5,6 +5,7 @@ The following is a python file that tries to simulate the behaviour of each engi
 COL_TriageTickets_ExportV2_01_04_2018_modified_data_analysis.xlsx.
 '''
 from numpy.random import choice
+import numpy as np
 import random
 
 class Engineer:
@@ -27,6 +28,8 @@ class Engineer:
                  weights_sla_met  = None,
                  elements_priority = None,
                  weights_priority = None,
+                 elements_kpi_i = None,
+                 weights_kpi_i = None
                  ):
 
         ''' Define the Engineer constructor. If one variable is non-public then it must contain the getters and setters
@@ -78,30 +81,6 @@ class Engineer:
         if weights_priority is None:
             weights_priority = []
 
-        # ------------------------- Getter and setter methods ---------------------------------#
-
-        '''
-        # Getter for the non-public variable first name
-        @property
-        def first_name(self):
-            return self._first_name
-
-        # Getter for the non-public variable last name
-        @property
-        def last_name(self):
-            return self._last_name
-
-        # Getter for the non-public variable amount_of_tickets_solved_day
-        @property # define the getter
-        def amount_of_tickets_solved_day(self):
-            return self._amount_of_tickets_solved_day
-
-        # Setter for the non-public variable amount_of_tickets_solved_day
-        @amount_of_tickets_solved_day.setter # define the setter
-        def amount_of_tickets_solved_day(self, new_value):
-            self._amount_of_tickets_solved_day = new_value
-
-        '''
         # ------------------------- Other methods ---------------------------------#
 
         def print_full_name(self):
@@ -110,11 +89,12 @@ class Engineer:
         #def weights_category(self):
 
 
-
 def main():
 
     #Define engineers
-    engineer_alekz_horne = Engineer("Alekz","Horne", random.randint(8,11)) #lists are not declared here
+    engineer_alekz_horne = Engineer("Alekz","Horne", random.randint(8,10)) #lists are not declared here
+
+    generated_tickets = []
 
     print(engineer_alekz_horne.first_name)
     print(engineer_alekz_horne.last_name)
@@ -127,24 +107,49 @@ def main():
     engineer_alekz_horne.elements_problem_category = ["Breach in SCADA systems","Compromised data","Erroneous data load",
                                                       "Hijack of device", "Internal flaws in device", "Malware installed",
                                                       "Penetration breach"]
-
-    engineer_alekz_horne.weights_problem_category  = [0.0646, 0.2320, 0.0943, 0.0816, 0.0339, 0.1653, 0.3284]
+    engineer_alekz_horne.weights_problem_category  = [0.065, 0.232, 0.094, 0.082, 0.034, 0.165,0.328]
 
     engineer_alekz_horne.elements_affected_devices = ["Company main devices", "Personal user devices", "Third party devices"]
-    engineer_alekz_horne.weights_affected_devices = [0.1165, 0.7754, 0.1081]
+    engineer_alekz_horne.weights_affected_devices = [0.117, 0.775, 0.108]
+
+    engineer_alekz_horne.elements_reason_for_creating = ["Daily Analysis", "Hourly Analysis","Special Request"]
+    engineer_alekz_horne.weights_reason_for_creating = [0.754, 0.092, 0.154]
 
 
+    engineer_alekz_horne.elements_issue_status = ["Closed","In Progress","Transferred"]
+    engineer_alekz_horne.weights_issue_status  = [0.117, 0.093, 0.790]
+
+    engineer_alekz_horne.elements_sla_met = ["Yes"]
+    engineer_alekz_horne.weights_sla_met  = [1]
+
+    engineer_alekz_horne.elements_priority = ["P1","P2","P3"]
+    engineer_alekz_horne.weights_priority = [0.082, 0.293, 0.625]
+
+    engineer_alekz_horne.elements_kpi_i = random.randint(1,68)
 
     for day in range(int(engineer_alekz_horne.amount_of_tickets_solved_day)):
-        print(choice(engineer_alekz_horne.elements_tickets_category, p=engineer_alekz_horne.weight_tickets_category))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_reason_for_creating, p=engineer_alekz_horne.weights_reason_for_creating))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_sla_met, p=engineer_alekz_horne.weights_sla_met))
+        generated_tickets.append(choice(engineer_alekz_horne.elements_priority, p=engineer_alekz_horne.weights_priority))
+        generated_tickets.append("KPI_I")
+        generated_tickets.append(random.randint(0, 45))
+        generated_tickets.append("KPI_II")
+        generated_tickets.append(random.randint(0, 45))
+        generated_tickets.append("KPI_III")
+        generated_tickets.append(random.randint(0, 31))
+        generated_tickets.append("KPI_IV")
+        generated_tickets.append(random.randint(0, 45))
+        generated_tickets.append(";")
 
-    print(engineer_alekz_horne.weight_tickets_category)
-    print(engineer_alekz_horne.elements_tickets_category)
-    # and not this
-    #engineer_alekz_horne = engineer_alekz_horne.amount_of_tickets_solved_day(9)
+        #print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
 
-    #print(engineer_alekz_horne.amount_of_tickets_solved_day)
-    print(engineer_alekz_horne.amount_of_tickets_solved_day)
+    print(generated_tickets)
+
+
 
 
 
