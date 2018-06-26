@@ -28,8 +28,8 @@ class Engineer:
                  weights_sla_met  = None,
                  elements_priority = None,
                  weights_priority = None,
-                 elements_kpi_i = None,
-                 weights_kpi_i = None
+                 #elements_kpi_i = None,
+                 #weights_kpi_i = None
                  ):
 
         ''' Define the Engineer constructor. If one variable is non-public then it must contain the getters and setters
@@ -91,10 +91,15 @@ class Engineer:
 
 def main():
 
-    #Define engineers
-    engineer_alekz_horne = Engineer("Alekz","Horne", random.randint(8,10)) #lists are not declared here
+    #------------------------------- Initialize main components of each engineer --------------------------#
 
-    generated_tickets = []
+    engineer_alekz_horne   = Engineer("Alekz","Horne", random.randint(7,9)) #lists are not declared here
+    engineer_annette_smith = Engineer("Annette","Smith", random.randint(6,8))  #lists are not declared here)
+
+    generated_tickets_alekz_horne = []
+    generated_tickets_annette_smith = []
+
+    #---------------------------------Generate tickets for Alekz Horne-------------------------------------#
 
     print(engineer_alekz_horne.first_name)
     print(engineer_alekz_horne.last_name)
@@ -125,44 +130,85 @@ def main():
     engineer_alekz_horne.elements_priority = ["P1","P2","P3"]
     engineer_alekz_horne.weights_priority = [0.082, 0.293, 0.625]
 
-    engineer_alekz_horne.elements_kpi_i = random.randint(1,68)
-
     for day in range(int(engineer_alekz_horne.amount_of_tickets_solved_day)):
-        generated_tickets.append(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_reason_for_creating, p=engineer_alekz_horne.weights_reason_for_creating))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_sla_met, p=engineer_alekz_horne.weights_sla_met))
-        generated_tickets.append(choice(engineer_alekz_horne.elements_priority, p=engineer_alekz_horne.weights_priority))
-        generated_tickets.append("KPI_I")
-        generated_tickets.append(random.randint(0, 45))
-        generated_tickets.append("KPI_II")
-        generated_tickets.append(random.randint(0, 45))
-        generated_tickets.append("KPI_III")
-        generated_tickets.append(random.randint(0, 31))
-        generated_tickets.append("KPI_IV")
-        generated_tickets.append(random.randint(0, 45))
-        generated_tickets.append(";")
-
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_reason_for_creating, p=engineer_alekz_horne.weights_reason_for_creating))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_sla_met, p=engineer_alekz_horne.weights_sla_met))
+        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_priority, p=engineer_alekz_horne.weights_priority))
+        generated_tickets_alekz_horne.append("KPI_I")
+        generated_tickets_alekz_horne.append(random.randint(0, 45))
+        generated_tickets_alekz_horne.append("KPI_II")
+        generated_tickets_alekz_horne.append(random.randint(0, 24))
+        generated_tickets_alekz_horne.append("KPI_III")
+        generated_tickets_alekz_horne.append(random.randint(0, 31))
+        generated_tickets_alekz_horne.append("KPI_IV")
+        generated_tickets_alekz_horne.append(random.randint(0, 28))
+        generated_tickets_alekz_horne.append(";")
         #print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+    print(generated_tickets_alekz_horne)
 
-    print(generated_tickets)
+    #---------------------------------Generate tickets for Annette Smith -------------------------------------#
 
+    print(engineer_annette_smith.first_name)
+    print(engineer_annette_smith.last_name)
+    print(engineer_annette_smith.amount_of_tickets_solved_day)
 
+    # this
+    engineer_annette_smith.elements_category = ["CyberSecurity"]
+    engineer_annette_smith.weight_category = [1]
 
+    engineer_annette_smith.elements_problem_category = ["Bad security policies", "Compromised data",
+                                                      "DDoS attack","Erroneous data load",
+                                                      "Identity spoofing","Lack of CERT",
+                                                      "Penetration breach", "Ransomware virus"]
 
+    engineer_annette_smith.weights_problem_category = [0.267, 0.017, 0.156, 0.004, 0.003, 0.037, 0.146, 0.371]
 
+    engineer_annette_smith.elements_affected_devices = ["Company main devices", "Personal user devices",
+                                                      "Third party devices"]
+    engineer_annette_smith.weights_affected_devices = [0.326, 0.530, 0.145]
 
+    engineer_annette_smith.elements_reason_for_creating = ["Bi-weekly Analysis","Daily Analysis", "Hourly Analysis", "Random Analysis", "Special Request"]
+    engineer_annette_smith.weights_reason_for_creating = [0.001, 0.112, 0.644, 0.121, 0.122]
 
-'''
->>> elements = ['one','two','three']
->>> weights = [0.2, 0.3, 0.5]
->>> from numpy.random import choice
->>> print(choice(elements, p = weights))
-'''
+    engineer_annette_smith.elements_issue_status = ["Closed", "In Progress", "Transferred"]
+    engineer_annette_smith.weights_issue_status = [0.327, 0.011, 0.662]
 
+    engineer_annette_smith.elements_sla_met = ["Yes"]
+    engineer_annette_smith.weights_sla_met = [1]
 
+    engineer_annette_smith.elements_priority = ["P2", "P3"]
+    engineer_annette_smith.weights_priority = [0.334, 0.666]
+
+    for day in range(int(engineer_annette_smith.amount_of_tickets_solved_day)):
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
+        generated_tickets_annette_smith.append(choice(engineer_alekz_horne.elements_reason_for_creating,
+                                                    p=engineer_alekz_horne.weights_reason_for_creating))
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_sla_met, p=engineer_alekz_horne.weights_sla_met))
+        generated_tickets_annette_smith.append(
+            choice(engineer_alekz_horne.elements_priority, p=engineer_alekz_horne.weights_priority))
+        generated_tickets_annette_smith.append("KPI_I")
+        generated_tickets_annette_smith.append(random.randint(0, 45)) # KPIs should be adjusted to random choice to get more accurate data
+        generated_tickets_annette_smith.append("KPI_II")
+        generated_tickets_annette_smith.append(random.randint(0, 48))
+        generated_tickets_annette_smith.append("KPI_III")
+        generated_tickets_annette_smith.append(random.randint(0, 64))
+        generated_tickets_annette_smith.append("KPI_IV")
+        generated_tickets_annette_smith.append(random.randint(0, 47))
+        generated_tickets_annette_smith.append(";")
+        # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+    print(generated_tickets_annette_smith)
 
 
 if __name__ == "__main__":
