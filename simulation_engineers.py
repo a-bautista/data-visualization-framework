@@ -7,8 +7,6 @@ COL_TriageTickets_ExportV2_01_04_2018_modified_data_analysis.xlsx.
 from numpy.random import choice
 import numpy as np
 import random
-from openpyxl.workbook import Workbook
-from openpyxl.styles import Font
 from openpyxl import load_workbook
 from datetime import date, timedelta, datetime
 from random import randrange
@@ -592,7 +590,7 @@ def generate_engineers_data(incident_counter):
     print(generated_tickets_florian_klein)
 
     # ---------------------------------Generate tickets for Dieter Becker -------------------------------------#
-    '''
+
     print(engineer_dieter_becker.first_name)
     print(engineer_dieter_becker.last_name)
     print(engineer_dieter_becker.amount_of_tickets_solved_day)
@@ -610,8 +608,8 @@ def generate_engineers_data(incident_counter):
     engineer_dieter_becker.weights_affected_devices = [0.1576, 0.0010, 0.8259, 0.0010, 0.0145]
 
     engineer_dieter_becker.elements_reason_for_creating = ["Daily Analysis", "Hourly Analysis", "Immediate Analysis", "Special Request", "VIP"]
-    engineer_dieter_becker.weights_reason_for_creating = [0.6228, 0.2205, 0.0106, 0.1412, 0.0048]
-    #print(np.sum([0.6228, 0.2205, 0.0106, 0.1412, 0.0048]))
+    engineer_dieter_becker.weights_reason_for_creating = [0.62282, 0.22050, 0.01064, 0.14120, 0.00484]
+    #print(np.sum([0.62282, 0.22050, 0.01064, 0.14120, 0.00484]))
 
     engineer_dieter_becker.elements_issue_status = ["Closed", "In Progress", "Transferred"]
     engineer_dieter_becker.weights_issue_status = [0.1509, 0.0464, 0.8027]
@@ -623,34 +621,60 @@ def generate_engineers_data(incident_counter):
     engineer_dieter_becker.weights_priority = [0.119, 0.789, 0.092]
 
     for day in range(int(engineer_dieter_becker.amount_of_tickets_solved_day)):
+        incident_counter = incident_counter + 1
+        generated_tickets_dieter_becker.append(incident_counter)
+        generated_tickets_dieter_becker.append(engineer_dieter_becker.first_name + " " + engineer_dieter_becker.last_name)
         generated_tickets_dieter_becker.append("F-Secure")
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_category, p=engineer_dieter_becker.weight_category))
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_problem_category, p=engineer_dieter_becker.weights_problem_category))
-        generated_tickets_dieter_becker.append(create_random_date(initial_date, ending_date))
+
+        # issue status
+        issue_status = choice(engineer_dieter_becker.elements_issue_status, p=engineer_dieter_becker.weights_issue_status)
+        generated_tickets_dieter_becker.append(issue_status)
+
+        # Initial Detection Date
+        initial_detection_date = create_random_date(converted_initial_date, converted_ending_date)
+        generated_tickets_dieter_becker.append(initial_detection_date)
+
+        # Initial Action Date - You need to create an action date after the incident was first initiated
+        action_date = create_random_date(initial_detection_date, converted_ending_date)
+        generated_tickets_dieter_becker.append(action_date)
+
+        # Issue Closed Date or Issue Re-Assigned Date
+        if issue_status == "Closed":
+            generated_tickets_dieter_becker.append(create_random_date(action_date, converted_ending_date))
+            generated_tickets_dieter_becker.append("NaN")
+        elif issue_status == "Transferred":
+            generated_tickets_dieter_becker.append("NaN")
+            generated_tickets_dieter_becker.append(create_random_date(action_date, converted_ending_date))
+        # Open or Queued
+        else:
+            generated_tickets_dieter_becker.append("NaN")  # Issue closed date
+            generated_tickets_dieter_becker.append("NaN")  # Issue re-assigned date
+
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_affected_devices, p=engineer_dieter_becker.weights_affected_devices))
         generated_tickets_dieter_becker.append(choice(engineer_dieter_becker.elements_reason_for_creating,
                                                     p=engineer_dieter_becker.weights_reason_for_creating))
-        generated_tickets_dieter_becker.append(
-            choice(engineer_dieter_becker.elements_issue_status, p=engineer_dieter_becker.weights_issue_status))
+
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_sla_met, p=engineer_dieter_becker.weights_sla_met))
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_priority, p=engineer_dieter_becker.weights_priority))
-        generated_tickets_dieter_becker.append("KPI_I")
+
         generated_tickets_dieter_becker.append(random.randint(0, 47)) # KPIs should be adjusted to random choice to get more accurate data
-        generated_tickets_dieter_becker.append("KPI_II")
+
         generated_tickets_dieter_becker.append(random.randint(0, 73))
-        generated_tickets_dieter_becker.append("KPI_III")
+
         generated_tickets_dieter_becker.append(random.randint(0, 72))
-        generated_tickets_dieter_becker.append("KPI_IV")
+
         generated_tickets_dieter_becker.append(random.randint(0, 114))
         generated_tickets_dieter_becker.append(";")
-        # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
+
     print(generated_tickets_dieter_becker)
-    '''
+
 
     # ---------------------------------Generate tickets for Hannes Weber -------------------------------------#
 
