@@ -97,12 +97,12 @@ class Engineer:
 
 def main():
     print("Preparing workbook...")
-    wb = load_workbook(
-        r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
+    wb = load_workbook(r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
+    ws = wb.active
     print("Workbook is ready!")
     incident_counter = determine_incident_counter(wb)
-    engineer_one, engineer_two, engineer_three, engineer_four, engineer_five = generate_engineers_data(incident_counter)
-    insert_data_in_worksheet(engineer_one, engineer_two, engineer_three, engineer_four, engineer_five, wb)
+    list_of_engineers_data = generate_engineers_data(incident_counter)
+    insert_data_in_worksheet(list_of_engineers_data, wb, ws)
 
 def generate_engineers_data(incident_counter):
     ''' The following are a brief description of the engineers that will be simulated based on their
@@ -319,6 +319,7 @@ def generate_engineers_data(incident_counter):
 
     # ------------------------------- Initialize main components of each engineer --------------------------#
 
+    list_engineers_data = []
     '''
         The lists of constructors lists are not declared here but the number of tickets solved per day are declared.
     '''
@@ -388,11 +389,16 @@ def generate_engineers_data(incident_counter):
         generated_tickets_alekz_horne.append(action_date)
 
         # Issue Closed Date or Issue Re-Assigned Date
-        if issue_status == "Closed" or issue_status == "Transferred":
+        if issue_status == "Closed":
+            generated_tickets_alekz_horne.append(create_random_date(action_date, converted_ending_date))
+            generated_tickets_alekz_horne.append("NaN")
+        elif issue_status == "Transferred":
+            generated_tickets_alekz_horne.append("NaN")
             generated_tickets_alekz_horne.append(create_random_date(action_date, converted_ending_date))
         # Open or Queued
         else:
-            generated_tickets_alekz_horne.append("NaN")
+            generated_tickets_alekz_horne.append("NaN") # Issue closed date
+            generated_tickets_alekz_horne.append("NaN") # Issue re-assigned date
 
 
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
@@ -468,11 +474,16 @@ def generate_engineers_data(incident_counter):
         generated_tickets_annette_smith.append(action_date)
 
         # Issue Closed Date or Issue Re-Assigned Date
-        if issue_status == "Closed" or issue_status == "Transferred":
+        if issue_status == "Closed":
+            generated_tickets_annette_smith.append(create_random_date(action_date, converted_ending_date))
+            generated_tickets_annette_smith.append("NaN")
+        elif issue_status == "Transferred":
+            generated_tickets_annette_smith.append("NaN")
             generated_tickets_annette_smith.append(create_random_date(action_date, converted_ending_date))
         # Open or Queued
         else:
-            generated_tickets_annette_smith.append("NaN")
+            generated_tickets_annette_smith.append("NaN")  # Issue closed date
+            generated_tickets_annette_smith.append("NaN")  # Issue re-assigned date
 
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_affected_devices, p=engineer_annette_smith.weights_affected_devices))
@@ -548,11 +559,16 @@ def generate_engineers_data(incident_counter):
         generated_tickets_florian_klein.append(action_date)
 
         # Issue Closed Date or Issue Re-Assigned Date
-        if issue_status == "Closed" or issue_status == "Transferred":
+        if issue_status == "Closed":
+            generated_tickets_florian_klein.append(create_random_date(action_date, converted_ending_date))
+            generated_tickets_florian_klein.append("NaN")
+        elif issue_status == "Transferred":
+            generated_tickets_florian_klein.append("NaN")
             generated_tickets_florian_klein.append(create_random_date(action_date, converted_ending_date))
         # Open or Queued
         else:
-            generated_tickets_florian_klein.append("NaN")
+            generated_tickets_florian_klein.append("NaN")  # Issue closed date
+            generated_tickets_florian_klein.append("NaN")  # Issue re-assigned date
 
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_affected_devices, p=engineer_florian_klein.weights_affected_devices))
@@ -688,11 +704,16 @@ def generate_engineers_data(incident_counter):
         generated_tickets_hannes_weber.append(action_date)
 
         # Issue Closed Date or Issue Re-Assigned Date
-        if issue_status == "Closed" or issue_status == "Transferred":
+        if issue_status == "Closed":
+            generated_tickets_hannes_weber.append(create_random_date(action_date, converted_ending_date))
+            generated_tickets_hannes_weber.append("NaN")
+        elif issue_status == "Transferred":
+            generated_tickets_hannes_weber.append("NaN")
             generated_tickets_hannes_weber.append(create_random_date(action_date, converted_ending_date))
         # Open or Queued
         else:
-            generated_tickets_hannes_weber.append("NaN")
+            generated_tickets_hannes_weber.append("NaN")  # Issue closed date
+            generated_tickets_hannes_weber.append("NaN")  # Issue re-assigned date
 
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_affected_devices, p=engineer_hannes_weber.weights_affected_devices))
@@ -713,36 +734,35 @@ def generate_engineers_data(incident_counter):
         generated_tickets_hannes_weber.append(random.randint(0, 114))
         generated_tickets_hannes_weber.append(";")
     print(generated_tickets_hannes_weber)
+    list_engineers_data.append(generated_tickets_alekz_horne)
+    list_engineers_data.append(generated_tickets_annette_smith)
+    list_engineers_data.append(generated_tickets_florian_klein)
+    list_engineers_data.append(generated_tickets_hannes_weber)
+    list_engineers_data.append(generated_tickets_dieter_becker)
 
-    return generated_tickets_alekz_horne, generated_tickets_annette_smith, generated_tickets_florian_klein, \
-           generated_tickets_hannes_weber, generated_tickets_dieter_becker
+    return list_engineers_data
 
 
-def insert_data_in_worksheet(engineer_one, engineer_two, engineer_three, engineer_four, engineer_five, wb):
+def insert_data_in_worksheet(list_of_engineers_data, wb, ws):
 
-    #print("Loading workbook, please wait...")
-    # load the existing spreadsheet - no need to add double \\
-    #wb = load_workbook(r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
-    #print("The workbook has been loaded.")
+    print("Writing results to workbook!")
+    #define the last row that was inserted and add +1 to avoid erasing the last column
+    row_count = ws.max_row + 1
+    print(row_count)
+    col_counter = 0
 
-    #get the current worksheet
-    write_current_sheet = wb.active
+    for ws in wb.worksheets:
+        for list_engineer in list_of_engineers_data:
+            for value in list_engineer:
+                if value != ";":
+                    col_counter = col_counter + 1
+                    ws.cell(row=row_count,column=col_counter).value = value
+                else:
+                    col_counter = 0
+                    row_count = row_count + 1
 
-    #define the last value of rows
-    row_count = write_current_sheet.max_row
+    wb.save(r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
 
-    # Take column 1 as a reference to get all the rows
-    #for index, row in enumerate(write_current_sheet.iter_rows()):
-    #    for cell in row:
-    #        print(write_current_sheet.cell(row=index+1, column=1).value, cell.value)
-
-    # declare this variable outside of the loop to avoid any data corruption
-    last_value_column_one = 0
-    # iterate ONLY over column 1 which contains the incident IDs
-    for i in range(row_count):
-        #print(write_current_sheet.cell(row=i+1, column=1).value)
-        last_value_column_one = write_current_sheet.cell(row=i+1, column=1).value
-    print(last_value_column_one)
 
 def determine_incident_counter(wb):
     # get the current worksheet
