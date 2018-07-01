@@ -7,6 +7,12 @@ COL_TriageTickets_ExportV2_01_04_2018_modified_data_analysis.xlsx.
 from numpy.random import choice
 import numpy as np
 import random
+from openpyxl.workbook import Workbook
+from openpyxl.styles import Font
+from openpyxl import load_workbook
+from datetime import date, timedelta, datetime
+from random import randrange
+
 
 class Engineer:
 
@@ -90,10 +96,15 @@ class Engineer:
 
 
 def main():
-    generate_engineers()
+    print("Preparing workbook...")
+    wb = load_workbook(
+        r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
+    print("Workbook is ready!")
+    incident_counter = determine_incident_counter(wb)
+    engineer_one, engineer_two, engineer_three, engineer_four, engineer_five = generate_engineers_data(incident_counter)
+    insert_data_in_worksheet(engineer_one, engineer_two, engineer_three, engineer_four, engineer_five, wb)
 
-
-def generate_engineers():
+def generate_engineers_data(incident_counter):
     ''' The following are a brief description of the engineers that will be simulated based on their
             probability distributions.
 
@@ -298,6 +309,13 @@ def generate_engineers():
             Wieght(s): They were not calculated
 
     '''
+    # ---------------------- Ask for the initial week where you want to display the tickets -----------------#
+
+    week = int(input("Please, provide the week number where you want to insert the new tickets: "))
+    year = int(input("Please, provide the year where you want to insert the new tickets: "))
+    initial_date, ending_date = get_start_end_date(year, week)
+    converted_initial_date, converted_ending_date = convert_date_to_datetime(initial_date, ending_date)
+
 
     # ------------------------------- Initialize main components of each engineer --------------------------#
 
@@ -349,20 +367,46 @@ def generate_engineers():
     engineer_alekz_horne.weights_priority = [0.082, 0.293, 0.625]
 
     for day in range(int(engineer_alekz_horne.amount_of_tickets_solved_day)):
+        incident_counter = incident_counter + 1
+        generated_tickets_alekz_horne.append(incident_counter)
+        generated_tickets_alekz_horne.append(engineer_alekz_horne.first_name + " " + engineer_alekz_horne.last_name)
+        generated_tickets_alekz_horne.append("F-Secure")
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
-        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
+        generated_tickets_alekz_horne.append(
+            choice(engineer_alekz_horne.elements_problem_category, p=engineer_alekz_horne.weights_problem_category))
+
+        # issue status
+        issue_status = choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status)
+        generated_tickets_alekz_horne.append(issue_status)
+
+        # Initial Detection Date
+        initial_detection_date = create_random_date(converted_initial_date, converted_ending_date)
+        generated_tickets_alekz_horne.append(initial_detection_date)
+
+        # Initial Action Date - You need to create an action date after the incident was first initiated
+        action_date = create_random_date(initial_detection_date, converted_ending_date)
+        generated_tickets_alekz_horne.append(action_date)
+
+        # Issue Closed Date or Issue Re-Assigned Date
+        if issue_status == "Closed" or issue_status == "Transferred":
+            generated_tickets_alekz_horne.append(create_random_date(action_date, converted_ending_date))
+        # Open or Queued
+        else:
+            generated_tickets_alekz_horne.append("NaN")
+
+
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_affected_devices, p=engineer_alekz_horne.weights_affected_devices))
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_reason_for_creating, p=engineer_alekz_horne.weights_reason_for_creating))
-        generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
+        #generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_issue_status, p=engineer_alekz_horne.weights_issue_status))
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_sla_met, p=engineer_alekz_horne.weights_sla_met))
         generated_tickets_alekz_horne.append(choice(engineer_alekz_horne.elements_priority, p=engineer_alekz_horne.weights_priority))
-        generated_tickets_alekz_horne.append("KPI_I")
+        #generated_tickets_alekz_horne.append("KPI_I")
         generated_tickets_alekz_horne.append(random.randint(0, 45))
-        generated_tickets_alekz_horne.append("KPI_II")
+        #generated_tickets_alekz_horne.append("KPI_II")
         generated_tickets_alekz_horne.append(random.randint(0, 24))
-        generated_tickets_alekz_horne.append("KPI_III")
+        #generated_tickets_alekz_horne.append("KPI_III")
         generated_tickets_alekz_horne.append(random.randint(0, 31))
-        generated_tickets_alekz_horne.append("KPI_IV")
+        #generated_tickets_alekz_horne.append("KPI_IV")
         generated_tickets_alekz_horne.append(random.randint(0, 28))
         generated_tickets_alekz_horne.append(";")
         #print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
@@ -401,27 +445,51 @@ def generate_engineers():
     engineer_annette_smith.weights_priority = [0.3337,0.6663]
 
     for day in range(int(engineer_annette_smith.amount_of_tickets_solved_day)):
+        incident_counter = incident_counter + 1
+        generated_tickets_annette_smith.append(incident_counter)
+        generated_tickets_annette_smith.append(engineer_annette_smith.first_name + " " +engineer_annette_smith.last_name)
+        generated_tickets_annette_smith.append("F-Secure")
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_category, p=engineer_annette_smith.weight_category))
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_problem_category, p=engineer_annette_smith.weights_problem_category))
+
+        # issue status
+        issue_status = choice(engineer_annette_smith.elements_issue_status,
+                              p=engineer_annette_smith.weights_issue_status)
+        generated_tickets_annette_smith.append(issue_status)
+
+        # Initial Detection Date
+        initial_detection_date = create_random_date(converted_initial_date, converted_ending_date)
+        generated_tickets_annette_smith.append(initial_detection_date)
+
+        # Initial Action Date - You need to create an action date after the incident was first initiated
+        action_date = create_random_date(initial_detection_date, converted_ending_date)
+        generated_tickets_annette_smith.append(action_date)
+
+        # Issue Closed Date or Issue Re-Assigned Date
+        if issue_status == "Closed" or issue_status == "Transferred":
+            generated_tickets_annette_smith.append(create_random_date(action_date, converted_ending_date))
+        # Open or Queued
+        else:
+            generated_tickets_annette_smith.append("NaN")
+
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_affected_devices, p=engineer_annette_smith.weights_affected_devices))
         generated_tickets_annette_smith.append(choice(engineer_annette_smith.elements_reason_for_creating,
                                                     p=engineer_annette_smith.weights_reason_for_creating))
-        generated_tickets_annette_smith.append(
-            choice(engineer_annette_smith.elements_issue_status, p=engineer_annette_smith.weights_issue_status))
+        #generated_tickets_annette_smith.append(choice(engineer_annette_smith.elements_issue_status, p=engineer_annette_smith.weights_issue_status))
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_sla_met, p=engineer_annette_smith.weights_sla_met))
         generated_tickets_annette_smith.append(
             choice(engineer_annette_smith.elements_priority, p=engineer_annette_smith.weights_priority))
-        generated_tickets_annette_smith.append("KPI_I")
+        #generated_tickets_annette_smith.append("KPI_I")
         generated_tickets_annette_smith.append(random.randint(0, 45)) # KPIs should be adjusted to random choice to get more accurate data
-        generated_tickets_annette_smith.append("KPI_II")
+        #generated_tickets_annette_smith.append("KPI_II")
         generated_tickets_annette_smith.append(random.randint(0, 48))
-        generated_tickets_annette_smith.append("KPI_III")
+        #generated_tickets_annette_smith.append("KPI_III")
         generated_tickets_annette_smith.append(random.randint(0, 64))
-        generated_tickets_annette_smith.append("KPI_IV")
+        #generated_tickets_annette_smith.append("KPI_IV")
         generated_tickets_annette_smith.append(random.randint(0, 47))
         generated_tickets_annette_smith.append(";")
         # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
@@ -458,34 +526,57 @@ def generate_engineers():
     engineer_florian_klein.weights_priority = [0.0072, 0.0775, 0.9153]
 
     for day in range(int(engineer_florian_klein.amount_of_tickets_solved_day)):
+        incident_counter = incident_counter + 1
+        generated_tickets_florian_klein.append(incident_counter)
+        generated_tickets_florian_klein.append(engineer_florian_klein.first_name + " " + engineer_florian_klein.last_name)
+        generated_tickets_florian_klein.append("F-Secure")
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_category, p=engineer_florian_klein.weight_category))
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_problem_category, p=engineer_florian_klein.weights_problem_category))
+
+        # issue status
+        issue_status = choice(engineer_florian_klein.elements_issue_status, p=engineer_florian_klein.weights_issue_status)
+        generated_tickets_florian_klein.append(issue_status)
+
+        # Initial Detection Date
+        initial_detection_date = create_random_date(converted_initial_date, converted_ending_date)
+        generated_tickets_florian_klein.append(initial_detection_date)
+
+        # Initial Action Date - You need to create an action date after the incident was first initiated
+        action_date = create_random_date(initial_detection_date, converted_ending_date)
+        generated_tickets_florian_klein.append(action_date)
+
+        # Issue Closed Date or Issue Re-Assigned Date
+        if issue_status == "Closed" or issue_status == "Transferred":
+            generated_tickets_florian_klein.append(create_random_date(action_date, converted_ending_date))
+        # Open or Queued
+        else:
+            generated_tickets_florian_klein.append("NaN")
+
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_affected_devices, p=engineer_florian_klein.weights_affected_devices))
         generated_tickets_florian_klein.append(choice(engineer_florian_klein.elements_reason_for_creating,
                                                     p=engineer_florian_klein.weights_reason_for_creating))
-        generated_tickets_florian_klein.append(
-            choice(engineer_florian_klein.elements_issue_status, p=engineer_florian_klein.weights_issue_status))
+        #generated_tickets_florian_klein.append(choice(engineer_florian_klein.elements_issue_status, p=engineer_florian_klein.weights_issue_status))
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_sla_met, p=engineer_florian_klein.weights_sla_met))
         generated_tickets_florian_klein.append(
             choice(engineer_florian_klein.elements_priority, p=engineer_florian_klein.weights_priority))
-        generated_tickets_florian_klein.append("KPI_I")
+        #generated_tickets_florian_klein.append("KPI_I")
         generated_tickets_florian_klein.append(random.randint(0, 37)) # KPIs should be adjusted to random choice to get more accurate data
-        generated_tickets_florian_klein.append("KPI_II")
+        #generated_tickets_florian_klein.append("KPI_II")
         generated_tickets_florian_klein.append(random.randint(0, 2))
-        generated_tickets_florian_klein.append("KPI_III")
+        #generated_tickets_florian_klein.append("KPI_III")
         generated_tickets_florian_klein.append(random.randint(0, 72))
-        generated_tickets_florian_klein.append("KPI_IV")
+        #generated_tickets_florian_klein.append("KPI_IV")
         generated_tickets_florian_klein.append(random.randint(0, 67))
         generated_tickets_florian_klein.append(";")
         # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
     print(generated_tickets_florian_klein)
 
     # ---------------------------------Generate tickets for Dieter Becker -------------------------------------#
-
+    '''
     print(engineer_dieter_becker.first_name)
     print(engineer_dieter_becker.last_name)
     print(engineer_dieter_becker.amount_of_tickets_solved_day)
@@ -504,6 +595,7 @@ def generate_engineers():
 
     engineer_dieter_becker.elements_reason_for_creating = ["Daily Analysis", "Hourly Analysis", "Immediate Analysis", "Special Request", "VIP"]
     engineer_dieter_becker.weights_reason_for_creating = [0.6228, 0.2205, 0.0106, 0.1412, 0.0048]
+    #print(np.sum([0.6228, 0.2205, 0.0106, 0.1412, 0.0048]))
 
     engineer_dieter_becker.elements_issue_status = ["Closed", "In Progress", "Transferred"]
     engineer_dieter_becker.weights_issue_status = [0.1509, 0.0464, 0.8027]
@@ -515,10 +607,12 @@ def generate_engineers():
     engineer_dieter_becker.weights_priority = [0.119, 0.789, 0.092]
 
     for day in range(int(engineer_dieter_becker.amount_of_tickets_solved_day)):
+        generated_tickets_dieter_becker.append("F-Secure")
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_category, p=engineer_dieter_becker.weight_category))
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_problem_category, p=engineer_dieter_becker.weights_problem_category))
+        generated_tickets_dieter_becker.append(create_random_date(initial_date, ending_date))
         generated_tickets_dieter_becker.append(
             choice(engineer_dieter_becker.elements_affected_devices, p=engineer_dieter_becker.weights_affected_devices))
         generated_tickets_dieter_becker.append(choice(engineer_dieter_becker.elements_reason_for_creating,
@@ -540,29 +634,10 @@ def generate_engineers():
         generated_tickets_dieter_becker.append(";")
         # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
     print(generated_tickets_dieter_becker)
+    '''
 
     # ---------------------------------Generate tickets for Hannes Weber -------------------------------------#
 
-    '''
-
-        SLA_MET: ["Yes", "No"]
-            Weight(s): [0.995, 0.005]
-
-        Priority = ["P0", "P1", "P2", "P3"]
-            Weight(s): [0.002, 0.071, 0.165, 0.762]
-
-        KPI_I: Range goes from 0 - 37
-            Wieght(s): They were not calculated
-
-        KPI_II: Range goes from 0 - 25
-            Wieght(s): They were not calculated
-
-        KPI_III: Range goes from 0 - 105
-            Wieght(s): They were not calculated
-
-        KPI_IV: Range goes from 0 - 66
-            Wieght(s): They were not calculated
-    '''
     print(engineer_hannes_weber.first_name)
     print(engineer_hannes_weber.last_name)
     print(engineer_hannes_weber.amount_of_tickets_solved_day)
@@ -592,31 +667,139 @@ def generate_engineers():
     engineer_hannes_weber.weights_priority = [0.002, 0.071, 0.165, 0.762]
 
     for day in range(int(engineer_hannes_weber.amount_of_tickets_solved_day)):
+        incident_counter = incident_counter + 1
+        generated_tickets_hannes_weber.append(incident_counter)
+        generated_tickets_hannes_weber.append(engineer_hannes_weber.first_name +" " + engineer_hannes_weber.last_name)
+        generated_tickets_hannes_weber.append("F-Secure")
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_category, p=engineer_hannes_weber.weight_category))
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_problem_category, p=engineer_hannes_weber.weights_problem_category))
+        #issue status
+        issue_status = choice(engineer_hannes_weber.elements_issue_status, p=engineer_hannes_weber.weights_issue_status)
+        generated_tickets_hannes_weber.append(issue_status)
+
+        # Initial Detection Date
+        initial_detection_date = create_random_date(converted_initial_date, converted_ending_date)
+        generated_tickets_hannes_weber.append(initial_detection_date)
+
+        # Initial Action Date - You need to create an action date after the incident was first initiated
+        action_date = create_random_date(initial_detection_date, converted_ending_date)
+        generated_tickets_hannes_weber.append(action_date)
+
+        # Issue Closed Date or Issue Re-Assigned Date
+        if issue_status == "Closed" or issue_status == "Transferred":
+            generated_tickets_hannes_weber.append(create_random_date(action_date, converted_ending_date))
+        # Open or Queued
+        else:
+            generated_tickets_hannes_weber.append("NaN")
+
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_affected_devices, p=engineer_hannes_weber.weights_affected_devices))
+
         generated_tickets_hannes_weber.append(choice(engineer_hannes_weber.elements_reason_for_creating,
                                                     p=engineer_hannes_weber.weights_reason_for_creating))
-        generated_tickets_hannes_weber.append(
-            choice(engineer_hannes_weber.elements_issue_status, p=engineer_hannes_weber.weights_issue_status))
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_sla_met, p=engineer_hannes_weber.weights_sla_met))
         generated_tickets_hannes_weber.append(
             choice(engineer_hannes_weber.elements_priority, p=engineer_hannes_weber.weights_priority))
-        generated_tickets_hannes_weber.append("KPI_I")
+        #generated_tickets_hannes_weber.append("KPI_I")
         generated_tickets_hannes_weber.append(random.randint(0, 47)) # KPIs should be adjusted to random choice to get more accurate data
-        generated_tickets_hannes_weber.append("KPI_II")
+        #generated_tickets_hannes_weber.append("KPI_II")
         generated_tickets_hannes_weber.append(random.randint(0, 73))
-        generated_tickets_hannes_weber.append("KPI_III")
+        #generated_tickets_hannes_weber.append("KPI_III")
         generated_tickets_hannes_weber.append(random.randint(0, 72))
-        generated_tickets_hannes_weber.append("KPI_IV")
+        #generated_tickets_hannes_weber.append("KPI_IV")
         generated_tickets_hannes_weber.append(random.randint(0, 114))
         generated_tickets_hannes_weber.append(";")
-        # print(choice(engineer_alekz_horne.elements_category, p=engineer_alekz_horne.weight_category))
     print(generated_tickets_hannes_weber)
+
+    return generated_tickets_alekz_horne, generated_tickets_annette_smith, generated_tickets_florian_klein, \
+           generated_tickets_hannes_weber, generated_tickets_dieter_becker
+
+
+def insert_data_in_worksheet(engineer_one, engineer_two, engineer_three, engineer_four, engineer_five, wb):
+
+    #print("Loading workbook, please wait...")
+    # load the existing spreadsheet - no need to add double \\
+    #wb = load_workbook(r"C:\Users\abautista\PycharmProjects\apps\backbone_navigator_github\Data_Visualization_Framework\Fake data\navigator_data_daily_insertion.xlsx")
+    #print("The workbook has been loaded.")
+
+    #get the current worksheet
+    write_current_sheet = wb.active
+
+    #define the last value of rows
+    row_count = write_current_sheet.max_row
+
+    # Take column 1 as a reference to get all the rows
+    #for index, row in enumerate(write_current_sheet.iter_rows()):
+    #    for cell in row:
+    #        print(write_current_sheet.cell(row=index+1, column=1).value, cell.value)
+
+    # declare this variable outside of the loop to avoid any data corruption
+    last_value_column_one = 0
+    # iterate ONLY over column 1 which contains the incident IDs
+    for i in range(row_count):
+        #print(write_current_sheet.cell(row=i+1, column=1).value)
+        last_value_column_one = write_current_sheet.cell(row=i+1, column=1).value
+    print(last_value_column_one)
+
+def determine_incident_counter(wb):
+    # get the current worksheet
+    write_current_sheet = wb.active
+
+    # define the last value of rows
+    row_count = write_current_sheet.max_row
+
+    last_value_column_one = 0
+    for i in range(row_count):
+        last_value_column_one = write_current_sheet.cell(row=i+1, column=1).value
+
+    return last_value_column_one
+
+def get_start_end_date(year, week):
+    '''Given the year and week, return the first and last day of the given week and year.
+       The first day is Sunday and last day is Saturday'''
+
+    year = int(year)
+    week = int(week)
+
+    d = date(year, 1, 1)
+    # patch to fix the problem of the retrieval of data for the first weeks of the year
+    dlt = timedelta(days=(week - 1) * 7)
+
+    if (d.weekday() <= 3):
+        d = d - timedelta(d.weekday())
+    else:
+        # this line  d = d + timedelta(6 - d.weekday()) indicates to start in Sunday and end in Saturday
+        # but it breaks when the retrieval is during the first weeks of the year, so we have to change the code
+        # back to d = d + timedelta(7 - d.weekday())
+        d = d + timedelta(7 - d.weekday())
+    return d + dlt, d + dlt + timedelta(days=6)
+
+def create_random_date(start, end):
+    """
+        This function will return a random datetime between two datetime objects.
+    """
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = randrange(int_delta)
+    return start + timedelta(seconds=random_second)
+
+    #return datetime.strptime(str(start + timedelta(seconds=random_second)), '%Y-%m-%d')
+
+def convert_date_to_datetime(beginning_date,ending_date):
+    required_space = " "
+    beginning_time_string_format = "00:00:00"
+    ending_time_string_format    = "23:59:59"
+    beginning_date_date_format_to_string = str(beginning_date).split(" ")[0] + required_space + beginning_time_string_format
+    ending_date_date_format_to_string = str(ending_date).split(" ")[0] + str() + required_space + ending_time_string_format
+
+    ####################### convert the string to datetime.datetime ##################
+    beginning_date_string_to_datetime = datetime.strptime(beginning_date_date_format_to_string, "%Y-%m-%d %H:%M:%S")
+    ending_date_string_to_datetime = datetime.strptime(ending_date_date_format_to_string, "%Y-%m-%d %H:%M:%S")
+
+    return beginning_date_string_to_datetime, ending_date_string_to_datetime
 
 if __name__ == "__main__":
     main()
